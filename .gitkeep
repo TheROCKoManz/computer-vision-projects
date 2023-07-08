@@ -1,0 +1,10 @@
+Data/Facial_Recog/Raw_DataStore/*
+Data/Facial_Recog/Preproc_Data
+Data/Facial_Recog/ModelData
+
+Data/Trained_Model_Garden
+
+Facial_Recognition/DataPreproc
+
+Facial_Recognition/Prediction/*
+Facial_Recognition/Training/Traininglogs
