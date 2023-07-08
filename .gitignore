@@ -1,7 +1,10 @@
 /Test.ipynb
 /TestFacial.py
 /.idea
-
+/Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetFrames/*
+Data/Trained_Model_Garden/*
+/Data/Facial_Recog/Preproc_Data/Targets/*
+/Data/Facial_Recog/ModelData/*
 
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
@@ -53,3 +56,5 @@ Thumbs.db
 *.mov
 *.wmv
 
+
+/Facial_Recognition/Training/Traininglogs/*

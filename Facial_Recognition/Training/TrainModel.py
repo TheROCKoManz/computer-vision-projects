@@ -8,6 +8,7 @@ from keras.callbacks import ModelCheckpoint
 import tensorflow as tf
 import calendar
 import time
+import pickle
 
 current_GMT = time.gmtime()
 time_stamp = calendar.timegm(current_GMT)
@@ -27,18 +28,27 @@ def train(Data):
 
         X=Flatten()(base_model.output)
         X=Dense(units=256, activation='relu')(X)
-        X=Dense(units=len(os.listdir("Data/ModelData/Train")), activation='softmax')(X)
+        X=Dense(units=len(os.listdir("Data/Facial_Recog/ModelData/Train")), activation='softmax')(X)
         model_IncRes = Model(base_model.input, X)
         model_IncRes.compile(optimizer='adam',loss=keras.losses.categorical_crossentropy,metrics=['accuracy'])
 
         current_GMT = time.gmtime()
         time_stamp = calendar.timegm(current_GMT)
 
-        mcIncRes= ModelCheckpoint(filepath="FaceRecog"+str(time_stamp)+".hdf5", monitor="val_accuracy", verbose=1, save_best_only= True)
+        mcIncRes= ModelCheckpoint(filepath="Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".hdf5", monitor="val_accuracy", verbose=1, save_best_only= True)
         cbIncRes=[mcIncRes]
 
         his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=12, epochs=10, validation_data=val_data,
                                             validation_steps=10, callbacks=cbIncRes)
+
+    labels = Data['classes']
+    pickle_out = open("Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".pickle", "wb")
+    pickle.dump(labels, pickle_out)
+    pickle_out.close()
+
+    # Close the GPU session
+    tf.compat.v1.keras.backend.get_session().close()
+
     save_training_performance(his_IncRes)
 
 def save_training_performance(his):
@@ -57,4 +67,4 @@ def save_training_performance(his):
     plt.title("LOSS")
     plt.plot(hIncRes['loss'], c='blue')
     plt.plot(hIncRes['val_loss'], c='red')
-    plt.savefig("training_performace")
+    plt.savefig("Facial_Recognition/Training/Traininglogs/training_performace"+str(time_stamp))

@@ -5,9 +5,9 @@ import math
 import shutil
 from keras.preprocessing.image import ImageDataGenerator
 
-image_base_dir = 'Data/Raw_DataStore/'
-work_dir = 'Data/Preproc_Data/'
-ModelData_dir = 'Data/ModelData/'
+image_base_dir = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetFrames/'
+work_dir = 'Data/Facial_Recog/Preproc_Data/'
+ModelData_dir = 'Data/Facial_Recog/ModelData/'
 
 no_of_images = {}
 
@@ -49,8 +49,8 @@ def data_modelling(Targets):
     # no_of_images['Non_Targets'] = len(os.listdir(work_dir + 'Non_Targets/'))
 
     print('\n\n\nTarget_Name\t\tNo_of_Images')
-    # for item in Targets:
-    #     print(item, '\t\t', no_of_images[item])
+    for item in Targets:
+        print(item, '\t\t', no_of_images[item])
     # print('Non_Targets', '\t\t', no_of_images['Non_Targets'],'\n\n\n')
 
     return no_of_images
@@ -114,12 +114,14 @@ def preprocess(Targets):
     train_path = ModelData_dir+"Train"
     train_data = preprocessingTrain(train_path)
 
-    val_path = "Data/ModelData/Val"
+    val_path = ModelData_dir+"Val"
     val_data = preprocessingVal(val_path)
 
-    test_path = "Data/ModelData/Test"
+    test_path = ModelData_dir+"Test"
     test_data = preprocessingVal(test_path)
 
-    Data = {'Train': train_data, 'Test': test_data, 'Val': val_data}
+    classes = val_data.class_indices
+
+    Data = {'Train': train_data, 'Test': test_data, 'Val': val_data, 'classes': classes}
 
     return Data
