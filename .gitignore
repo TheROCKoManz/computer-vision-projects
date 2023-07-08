@@ -5,6 +5,7 @@
 Data/Trained_Model_Garden/*
 /Data/Facial_Recog/Preproc_Data/Targets/*
 /Data/Facial_Recog/ModelData/*
+Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo/*
 
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
