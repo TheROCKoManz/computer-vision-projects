@@ -14,7 +14,7 @@ no_of_images = {}
 def data_modelling(Targets):
     Non_Targets = []
     for person in os.listdir(image_base_dir):
-        if person not in Targets:
+        if person not in Targets and person not in ['.gitkeep', '.gitignore']:
             Non_Targets.append(person)
     personfolder = os.listdir(image_base_dir)
 
@@ -27,11 +27,11 @@ def data_modelling(Targets):
 
     for target in Targets:
         target_dir = work_dir + 'Targets/' + target
-        if target not in os.listdir(work_dir + 'Targets/') and target in personfolder:
+        if target not in os.listdir(work_dir + 'Targets/') and target in personfolder and target not in ['.gitkeep', '.gitignore']:
             os.mkdir(target_dir)
 
         for file in os.listdir(image_base_dir + target):
-            if file not in os.listdir(target_dir):
+            if file not in os.listdir(target_dir) and file not in ['.gitkeep', '.gitignore']:
                 shutil.copy(image_base_dir + target + '/' + file, target_dir)
 
     # for person in Non_Targets:
@@ -45,7 +45,8 @@ def data_modelling(Targets):
     #             break
 
     for target in os.listdir(work_dir + 'Targets'):
-        no_of_images[target] = len(os.listdir(work_dir + 'Targets/' + target))
+        if target not in ['.gitkeep', '.gitignore']:
+            no_of_images[target] = len(os.listdir(work_dir + 'Targets/' + target))
     # no_of_images['Non_Targets'] = len(os.listdir(work_dir + 'Non_Targets/'))
 
     print('\n\n\nTarget_Name\t\tNo_of_Images')
@@ -61,19 +62,20 @@ def dataFolder(p, split):
     if not os.path.exists(ModelData_dir + p):
         os.mkdir(ModelData_dir + p)
         for dir in os.listdir(work_dir + 'Targets/'):
-            os.makedirs(ModelData_dir + p + "/" + dir)
-            for img in np.random.choice(a=os.listdir(os.path.join(work_dir + 'Targets', dir)),
-                                        size=(math.floor(split * no_of_images[dir]) - 5),
-                                        replace=False):
-                O = os.path.join(work_dir + 'Targets', dir, img)
-                D = os.path.join(ModelData_dir + p, dir)
-                shutil.copy(O, D)
-        # os.mkdir(ModelData_dir + p + "/Non_Targets")
-        # for img in np.random.choice(a=os.listdir(work_dir + 'Non_Targets/'),
-        #                             size=(math.floor(split * no_of_images['Non_Targets']) - 5),
-        #                             replace=False):
-        #     O = os.path.join(work_dir + 'Non_Targets', img)
-        #     D = os.path.join(ModelData_dir + p + '/Non_Targets')
+            if dir not in ['.gitkeep', '.gitignore']:
+                os.makedirs(ModelData_dir + p + "/" + dir)
+                for img in np.random.choice(a=os.listdir(os.path.join(work_dir + 'Targets', dir)),
+                                            size=(math.floor(split * no_of_images[dir]) - 5),
+                                            replace=False):
+                    O = os.path.join(work_dir + 'Targets', dir, img)
+                    D = os.path.join(ModelData_dir + p, dir)
+                    shutil.copy(O, D)
+            # os.mkdir(ModelData_dir + p + "/Non_Targets")
+            # for img in np.random.choice(a=os.listdir(work_dir + 'Non_Targets/'),
+            #                             size=(math.floor(split * no_of_images['Non_Targets']) - 5),
+            #                             replace=False):
+            #     O = os.path.join(work_dir + 'Non_Targets', img)
+            #     D = os.path.join(ModelData_dir + p + '/Non_Targets')
         #     shutil.copy(O, D)
 
     else:
@@ -90,7 +92,7 @@ def preprocessingTrain(path):
 
     image = image_data.flow_from_directory(directory= path,
                                            target_size=(256,256),
-                                           batch_size=32,
+                                           batch_size=12,
                                            class_mode='categorical')
     return image
 
@@ -98,7 +100,7 @@ def preprocessingVal(path):
     image_data = ImageDataGenerator(rescale=1./255)
     image = image_data.flow_from_directory(directory= path,
                                            target_size=(256,256),
-                                           batch_size=32,
+                                           batch_size=12,
                                            class_mode='categorical')
     return image
 

@@ -38,8 +38,8 @@ def train(Data):
         mcIncRes= ModelCheckpoint(filepath="Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".hdf5", monitor="val_accuracy", verbose=1, save_best_only= True)
         cbIncRes=[mcIncRes]
 
-        his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=12, epochs=10, validation_data=val_data,
-                                            validation_steps=10, callbacks=cbIncRes)
+        his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=8, epochs=50, validation_data=val_data,
+                                            validation_steps=8, callbacks=cbIncRes)
 
     labels = Data['classes']
     pickle_out = open("Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".pickle", "wb")

@@ -7,7 +7,7 @@ def extractFrames():
     raw_origin_path = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo/'
     frames_destination_path = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetFrames/'
 
-    for target in [file[:-4] for file in os.listdir(raw_origin_path)]:
+    for target in [file[:-4] for file in os.listdir(raw_origin_path) if file not in ['.gitkeep', '.gitignore']]:
         if not os.path.exists(frames_destination_path+target.lower()):
             os.mkdir(frames_destination_path+target.lower())
 

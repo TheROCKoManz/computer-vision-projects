@@ -5,11 +5,13 @@ import tensorflow as tf
 import sys
 import cv2
 import  pickle
+import collections
 
 import time
 import calendar
 current_GMT = time.gmtime()
 time_stamp = calendar.timegm(current_GMT)
+
 
 def predictImagefile(imgpath, modelfile, labels):
     img = image.load_img(imgpath, target_size=(256, 256, 3))
@@ -59,24 +61,29 @@ def predictLive(modelfile, labels):
 
     pickle_in = open(labels, "rb")
     classes = pickle.load(pickle_in)
-
+    detection = []
     while True:
-
-        detection = []
         ret, frame = cap.read()
         faces = facedetect.detectMultiScale(frame, 1.1, 5)
-        for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-        pred = predict(frame=frame,model=model, classes= classes)
-        print(pred)
-        cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+        if len(faces)>0:
+            for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+            pred = predict(frame=frame,model=model, classes= classes)
+            print(pred)
+            detection.append(pred)
+            cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+
         cv2.imshow('Webcam', frame)
 
-
-
+        if detection.__len__()==60:
+            break
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()
     cv2.destroyAllWindows()
+
+    Recognized_Person = collections.Counter(detection).most_common(1)[0][0]
+    return f"\n\nFinal Recognized: {Recognized_Person}"
+
 
 if __name__ == '__main__':
     source = sys.argv[1]
@@ -95,5 +102,5 @@ if __name__ == '__main__':
         predictVideofile(vid_path, modelfile,labels)
 
     elif source == 'camera':
-        predictLive(modelfile,labels)
+        print(predictLive(modelfile,labels))
 
