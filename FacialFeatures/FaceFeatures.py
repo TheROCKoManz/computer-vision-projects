@@ -1,4 +1,4 @@
-from deepface import  DeepFace
+from deepface import DeepFace
 
 def predictAge(img):
     objs = DeepFace.analyze(img_path=img,actions=('age',),enforce_detection=False)

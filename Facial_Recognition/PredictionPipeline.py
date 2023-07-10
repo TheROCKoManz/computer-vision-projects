@@ -27,8 +27,8 @@ def predictVideofile(vidpath, modelfile, labels):
     frame_height = int(cap.get(4))
 
     size = (frame_width, frame_height)
-
-    result = cv2.VideoWriter('Facial_Recognition/Prediction/Predictionlogs/prediction_'+time_stamp+'.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, size)
+    detection = []
+    # result = cv2.VideoWriter('Facial_Recognition/Prediction/Predictionlogs/prediction_'+str(time_stamp)+'.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 20, size)
 
     while True:
         ret, frame = cap.read()
@@ -43,18 +43,25 @@ def predictVideofile(vidpath, modelfile, labels):
 
         pred = predict(frame=frame,model=model, classes= classes)
         print(pred)
+        detection.append(pred)
         cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('Webcam', frame)
-        result.write(frame)
+        # result.write(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()
     cv2.destroyAllWindows()
+    Recognized_Person = collections.Counter(detection).most_common(1)[0][0]
+    return f"\n\nFinal Recognized: {Recognized_Person}"
 
 
 def predictLive(modelfile, labels):
     facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    cap = cv2.VideoCapture(0)
+
+    cap = cv2.VideoCapture(1)  #Priority on external Cam
+    # Check if the camera is opened
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(0)
     font = cv2.FONT_HERSHEY_COMPLEX
     with tf.device('/GPU:0'):
         model = load_model(modelfile)
@@ -95,12 +102,12 @@ if __name__ == '__main__':
 
     if source == 'image':
         img_path = sys.argv[3]
-        predictImagefile(img_path,modelfile,labels)
+        predictImagefile(img_path, modelfile, labels)
 
     elif source == 'video':
         vid_path = sys.argv[3]
-        predictVideofile(vid_path, modelfile,labels)
+        print(predictVideofile(vid_path, modelfile, labels))
 
     elif source == 'camera':
-        print(predictLive(modelfile,labels))
+        print(predictLive(modelfile, labels))
 
