@@ -7,6 +7,10 @@ Facial Recognition--------------------------------------------------------------
 ---Add a function that returns the most dominant face in a span of 2 seconds window.
 ---Redefine Pipeline.
 
+---Add Face Detection from OpenCV to recognize face structure first.
+        |---> Recognition only works if face is captured
+        |---> Break loop after 60 frames regognized.
+
 Facial Features--------------------------------------------------------------------------
 ---Need to find Feature extraction algorithms that can work on real-time.
 ---Input: Numpy Vector of Image.

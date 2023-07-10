@@ -61,6 +61,8 @@ def predictLive(modelfile, labels):
     classes = pickle.load(pickle_in)
 
     while True:
+
+        detection = []
         ret, frame = cap.read()
         faces = facedetect.detectMultiScale(frame, 1.1, 5)
         for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
@@ -68,6 +70,9 @@ def predictLive(modelfile, labels):
         print(pred)
         cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('Webcam', frame)
+
+
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()
