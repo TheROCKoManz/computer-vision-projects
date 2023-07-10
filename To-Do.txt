@@ -1,0 +1,31 @@
+All--------------------------------------------------------------------------------------
+---> Need to look for how to clear GPU Cache, and idle tasks before loading process on GPU
+---> Also need to find how to clear GPU cache after complete running of task
+
+Facial Recognition-----------------------------------------------------------------------
+---Look for other better Networks than InceptionResnetV2.
+---Add a function that returns the most dominant face in a span of 2 seconds window.
+---Redefine Pipeline.
+
+Facial Features--------------------------------------------------------------------------
+---Need to find Feature extraction algorithms that can work on real-time.
+---Input: Numpy Vector of Image.
+---Output: Dictionary of all features
+            result = {
+                        'age': age,
+                        'gender': gender,
+                        'emotion': emotion,
+                        'race': race,
+                      }
+
+OCR--------------------------------------------------------------------------------------
+---Need Data
+---Create OCR Pipeline
+
+Crowd Analysis---------------------------------------------------------------------------
+---Need Data
+---Look for Algorithms in use
+---Create Pipeline
+---List out features to get from crowd analysis
+
+

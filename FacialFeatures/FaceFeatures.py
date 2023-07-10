@@ -15,3 +15,4 @@ def predictRace(img):
 def predictEmotion(img):
     objs = DeepFace.analyze(img_path=img,actions=('emotion',),enforce_detection=False)
     return objs['dominant_emotion']
+
