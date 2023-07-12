@@ -4,10 +4,8 @@ All-----------------------------------------------------------------------------
 
 Facial Recognition-----------------------------------------------------------------------
 ---Look for other better Networks than InceptionResnetV2.
----Add a function that returns the most dominant face in a span of 2 seconds window.
----Redefine Pipeline.
-
----Add Face Detection from OpenCV to recognize face structure first.
+(Done)---Add a function that returns the most dominant face in a span of 2 seconds window.
+(Done)---Add Face Detection from OpenCV to recognize face structure first.
         |---> Recognition only works if face is captured
         |---> Break loop after 60 frames regognized.
 
