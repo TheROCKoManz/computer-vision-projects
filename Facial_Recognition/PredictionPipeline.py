@@ -4,7 +4,7 @@ from keras.models import load_model
 import tensorflow as tf
 import sys
 import cv2
-import  pickle
+import pickle
 import collections
 
 import time
@@ -35,6 +35,11 @@ def predictVideofile(vidpath, modelfile, labels):
         faces = facedetect.detectMultiScale(frame, 1.1, 5)
         for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
+        core_config = tf.compat.v1.ConfigProto()
+        core_config.gpu_options.allow_growth = True
+        session = tf.compat.v1.Session(config=core_config)
+        tf.compat.v1.keras.backend.set_session(session)
+
         with tf.device('/GPU:0'):
             model = load_model(modelfile)
 
@@ -58,11 +63,17 @@ def predictVideofile(vidpath, modelfile, labels):
 def predictLive(modelfile, labels):
     facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-    cap = cv2.VideoCapture(1)  #Priority on external Cam
+    # cap = cv2.VideoCapture(1)  #Priority on external Cam
+    cap = cv2.VideoCapture(0)
     # Check if the camera is opened
     if not cap.isOpened():
         cap = cv2.VideoCapture(0)
     font = cv2.FONT_HERSHEY_COMPLEX
+
+    core_config = tf.compat.v1.ConfigProto()
+    core_config.gpu_options.allow_growth = True
+    session = tf.compat.v1.Session(config=core_config)
+    tf.compat.v1.keras.backend.set_session(session)
     with tf.device('/GPU:0'):
         model = load_model(modelfile)
 
@@ -81,7 +92,7 @@ def predictLive(modelfile, labels):
 
         cv2.imshow('Webcam', frame)
 
-        if detection.__len__()==60:
+        if detection.__len__()==15:
             break
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
