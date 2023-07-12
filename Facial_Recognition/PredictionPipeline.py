@@ -18,6 +18,7 @@ def predictImagefile(imgpath, modelfile, labels):
     prediction = predict(frame=img, modelfile=modelfile, labels = labels)
     return prediction
 
+
 def predictVideofile(vidpath, modelfile, labels):
     facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     cap = cv2.VideoCapture(vidpath)
