@@ -61,3 +61,5 @@ Thumbs.db
 
 
 /Facial_Recognition/Training/Traininglogs/*
+/Facial_Recognition/Testing_FaceRecog.ipynb
+Facial_Recognition/.ipynb_checkpoints/
