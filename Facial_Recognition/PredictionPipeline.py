@@ -1,8 +1,6 @@
 from ftplib import FTP
 from io import BytesIO
-import cv2
 from Prediction.PredictPerson import predict
-from tensorflow.keras.preprocessing import image
 from keras.models import load_model
 import tensorflow as tf
 import sys
@@ -34,41 +32,45 @@ def predictImagefile(imgpath, modelfile, labels):
     session = tf.compat.v1.Session(config=core_config)
     tf.compat.v1.keras.backend.set_session(session)
 
-    model_stream = BytesIO()
-    labels_stream = BytesIO()
-    ftp.retrbinary('RETR ' + modelfile, model_stream.write)
-    ftp.retrbinary('RETR ' + labels, labels_stream.write)
-    model_stream.seek(0)
-    labels_stream.seek(0)
+    if not os.path.exists(modelfile):
+        model_stream = BytesIO()
+        ftp.retrbinary('RETR ' + modelfile, model_stream.write)
+        model_stream.seek(0)
+        with open(modelfile, 'wb') as local_model:
+            local_model.write(model_stream.read())
+        local_model.close()
 
-    with open('imgface_model.h5', 'wb') as local_model:
-        local_model.write(model_stream.read())
-    with open('imglabels.pickle', 'wb') as local_label:
-        local_label.write(labels_stream.read())
-    local_model.close()
-    local_label.close()
+    if not os.path.exists(labels):
+        labels_stream = BytesIO()
+        ftp.retrbinary('RETR ' + labels, labels_stream.write)
+        labels_stream.seek(0)
+        with open(labels, 'wb') as local_label:
+            local_label.write(labels_stream.read())
+        local_label.close()
 
     with tf.device('/GPU:0'):
-        model = load_model('imgface_model.h5')
-    pickle_in = open('imglabels.pickle', "rb")
+        model = load_model(modelfile)
+    pickle_in = open(labels, "rb")
     classes = pickle.load(pickle_in)
     pickle_in.close()
-
-    os.remove('imgface_model.h5')
-    os.remove('imglabels.pickle')
 
     img = cv2.imread(imgpath)
 
     faces = facedetect.detectMultiScale(img, 1.1, 5)
-    for x, y, w, h in faces: cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
+    pred = ''
+    if len(faces)>0:
+        for x, y, w, h in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
-    pred = predict(frame=img, model=model, classes=classes)
+            pred = predict(frame=img[y:y+h, x:x+w], model=model, classes=classes)
+            cv2.putText(img, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
-    cv2.putText(img, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-    cv2.imshow('Image', img)
+    while True:
+        cv2.imshow('Image', img)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
+        if (cv2.waitKey(1) & 0xFF) == ord('q'):
+            cv2.destroyAllWindows()
+            break
 
     ftp.close()
 
@@ -92,40 +94,41 @@ def predictVideofile(vidpath, modelfile, labels):
     session = tf.compat.v1.Session(config=core_config)
     tf.compat.v1.keras.backend.set_session(session)
 
-    model_stream = BytesIO()
-    labels_stream = BytesIO()
-    ftp.retrbinary('RETR ' + modelfile, model_stream.write)
-    ftp.retrbinary('RETR ' + labels, labels_stream.write)
-    model_stream.seek(0)
-    labels_stream.seek(0)
+    if not os.path.exists(modelfile):
+        model_stream = BytesIO()
+        ftp.retrbinary('RETR ' + modelfile, model_stream.write)
+        model_stream.seek(0)
+        with open(modelfile, 'wb') as local_model:
+            local_model.write(model_stream.read())
+        local_model.close()
 
-    with open('vidface_model.h5', 'wb') as local_model:
-        local_model.write(model_stream.read())
-    with open('vidlabels.pickle', 'wb') as local_label:
-        local_label.write(labels_stream.read())
-    local_model.close()
-    local_label.close()
+    if not os.path.exists(labels):
+        labels_stream = BytesIO()
+        ftp.retrbinary('RETR ' + labels, labels_stream.write)
+        labels_stream.seek(0)
+        with open(labels, 'wb') as local_label:
+            local_label.write(labels_stream.read())
+        local_label.close()
 
     with tf.device('/GPU:0'):
-        model = load_model('vidface_model.h5')
-    pickle_in = open('vidlabels.pickle', "rb")
+        model = load_model(modelfile)
+    pickle_in = open(labels, "rb")
     classes = pickle.load(pickle_in)
     pickle_in.close()
-
-    os.remove('vidface_model.h5')
-    os.remove('vidlabels.pickle')
 
     while True:
         ret, frame = cap.read()
         if not ret or frame is None:
             break
         faces = facedetect.detectMultiScale(frame, 1.1, 5)
-        for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        if len(faces) > 0:
+            for x, y, w, h in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+                pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
+                print(pred)
+                detection.append(pred)
+                cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
-        pred = predict(frame=frame, model=model, classes=classes)
-        print(pred)
-        detection.append(pred)
-        cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('Webcam', frame)
         # result.write(frame)
         # if detection.__len__() == 15:
@@ -154,28 +157,27 @@ def predictLive(modelfile, labels):
     session = tf.compat.v1.Session(config=core_config)
     tf.compat.v1.keras.backend.set_session(session)
 
-    model_stream = BytesIO()
-    labels_stream = BytesIO()
-    ftp.retrbinary('RETR ' + modelfile, model_stream.write)
-    ftp.retrbinary('RETR ' + labels, labels_stream.write)
-    model_stream.seek(0)
-    labels_stream.seek(0)
+    if not os.path.exists(modelfile):
+        model_stream = BytesIO()
+        ftp.retrbinary('RETR ' + modelfile, model_stream.write)
+        model_stream.seek(0)
+        with open(modelfile, 'wb') as local_model:
+            local_model.write(model_stream.read())
+        local_model.close()
 
-    with open('liveface_model.h5', 'wb') as local_model:
-        local_model.write(model_stream.read())
-    with open('livelabels.pickle', 'wb') as local_label:
-        local_label.write(labels_stream.read())
-    local_model.close()
-    local_label.close()
+    if not os.path.exists(labels):
+        labels_stream = BytesIO()
+        ftp.retrbinary('RETR ' + labels, labels_stream.write)
+        labels_stream.seek(0)
+        with open(labels, 'wb') as local_label:
+            local_label.write(labels_stream.read())
+        local_label.close()
 
     with tf.device('/GPU:0'):
-        model = load_model('liveface_model.h5')
-    pickle_in = open('livelabels.pickle', "rb")
+        model = load_model(modelfile)
+    pickle_in = open(labels, "rb")
     classes = pickle.load(pickle_in)
     pickle_in.close()
-
-    os.remove('liveface_model.h5')
-    os.remove('livelabels.pickle')
 
     detection = []
     while True:
@@ -185,16 +187,18 @@ def predictLive(modelfile, labels):
 
         faces = facedetect.detectMultiScale(frame, 1.1, 5)
         if len(faces) > 0:
-            for x, y, w, h in faces: cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-            pred = predict(frame=frame, model=model, classes=classes)
-            print(pred)
-            detection.append(pred)
-            cv2.putText(frame, pred, (180, 75), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            for x, y, w, h in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+                pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
+                print(pred)
+                detection.append(pred)
+                cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
         cv2.imshow('Webcam', frame)
 
-        if detection.__len__() == 15:
-            break
+        # if detection.__len__() == 15:
+        #     break
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()

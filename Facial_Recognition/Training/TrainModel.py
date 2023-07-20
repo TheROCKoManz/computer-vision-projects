@@ -6,17 +6,20 @@ import keras.losses
 from keras.applications.inception_resnet_v2 import InceptionResNetV2 as IncRes
 from keras.callbacks import ModelCheckpoint
 import tensorflow as tf
-import calendar
-import time
+import datetime
 import pickle
 
-current_GMT = time.gmtime()
-time_stamp = calendar.timegm(current_GMT)
+from Server_Loading.Upload_from_local import upload_files
+
+current_time = datetime.datetime.now()
+time_stamp = current_time.strftime("%d%m%y%H%M%S")
 
 def train(Data):
 
     print("\n\n\n")
     print("Model is being trained on the provided user Images...\n\n\n")
+
+    epochs = 10
 
     train_data = Data['Train']
     val_data = Data['Val']
@@ -32,19 +35,30 @@ def train(Data):
         model_IncRes = Model(base_model.input, X)
         model_IncRes.compile(optimizer='adam',loss=keras.losses.categorical_crossentropy,metrics=['accuracy'])
 
-        current_GMT = time.gmtime()
-        time_stamp = calendar.timegm(current_GMT)
+        current_time = datetime.datetime.now()
+        time_stamp = current_time.strftime("%d%m%y%H%M%S")
 
         mcIncRes= ModelCheckpoint(filepath="Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".hdf5", monitor="val_accuracy", verbose=1, save_best_only= True)
         cbIncRes=[mcIncRes]
 
-        his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=8, epochs=50, validation_data=val_data,
+        his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=10, epochs=epochs, validation_data=val_data,
                                             validation_steps=8, callbacks=cbIncRes)
 
     labels = Data['classes']
     pickle_out = open("Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".pickle", "wb")
     pickle.dump(labels, pickle_out)
     pickle_out.close()
+
+    training_accuracy = his_IncRes.history['accuracy'][-1]
+    training_loss = his_IncRes.history['loss'][-1]
+    validation_accuracy = his_IncRes.history['val_accuracy'][-1]
+    validation_loss = his_IncRes.history['val_loss'][-1]
+
+    print(f'\n\nTraining Completed...\nEpochs: {epochs}')
+    print(f'Training Accuracy: {training_accuracy}\nValidation Accuracy: {validation_accuracy}')
+    print(f'Training Loss: {training_loss}\nValidation Loss: {validation_loss}\n')
+    print(f' Trained model =====> FaceRecog{str(time_stamp)}.hdf5\n')
+    upload_files('Data/Trained_Model_Garden/')
 
     # Close the GPU session
     tf.compat.v1.keras.backend.get_session().close()

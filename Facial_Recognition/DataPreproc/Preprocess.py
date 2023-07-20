@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2 as cv
 import os
 import math
 import shutil
@@ -11,7 +12,18 @@ ModelData_dir = 'Data/Facial_Recog/ModelData/'
 
 no_of_images = {}
 
+def face_select(img):
+    img = cv.imread(img)
+    facedetect = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = facedetect.detectMultiScale(img, 1.1, 5)
+    imgs=[]
+    if len(faces) > 0:
+        for x, y, w, h in faces:
+            imgs.append(img[y:y + h, x:x + w])
+    return imgs
+
 def data_modelling(Targets):
+    print('Modelling Raw Frames to Facial Images')
     Non_Targets = []
     for person in os.listdir(image_base_dir):
         if person not in Targets and person not in ['.gitkeep', '.gitignore']:
@@ -32,8 +44,10 @@ def data_modelling(Targets):
 
         for file in os.listdir(image_base_dir + target):
             if file not in os.listdir(target_dir) and file not in ['.gitkeep', '.gitignore']:
-                shutil.copy(image_base_dir + target + '/' + file, target_dir)
+                for img in face_select(image_base_dir + target + '/' + file):
+                    cv.imwrite(target_dir+'/'+file+'.jpg', img)
 
+    print('Frames modelled... Cropped to Facial frames\n')
     # for person in Non_Targets:
     #     non_target_dir = work_dir + 'Non_Targets/'
     #     counter = 0
@@ -49,12 +63,13 @@ def data_modelling(Targets):
             no_of_images[target] = len(os.listdir(work_dir + 'Targets/' + target))
     # no_of_images['Non_Targets'] = len(os.listdir(work_dir + 'Non_Targets/'))
 
-    print('\n\n\nTarget_Name\t\tNo_of_Images')
+    print('\nTarget_Name\t\tNo_of_Images')
     for item in Targets:
         print(item, '\t\t', no_of_images[item])
     # print('Non_Targets', '\t\t', no_of_images['Non_Targets'],'\n\n\n')
 
     return no_of_images
+
 
 def dataFolder(p, split):
     if not os.path.exists(ModelData_dir):
@@ -96,6 +111,7 @@ def preprocessingTrain(path):
                                            class_mode='categorical')
     return image
 
+
 def preprocessingVal(path):
     image_data = ImageDataGenerator(rescale=1./255)
     image = image_data.flow_from_directory(directory= path,
@@ -107,12 +123,17 @@ def preprocessingVal(path):
 
 def preprocess(Targets):
 
+    print('\nStarting Data Preprocessing Pipeline...\n')
+
     data_modelling(Targets)
 
+    print('Splitting Data into Train-Test segments...\n')
     dataFolder("Train", 0.7)
     dataFolder("Val", 0.3)
     dataFolder("Test", 0.5)
+    print('Done')
 
+    print('Performing Augmentation...\n')
     train_path = ModelData_dir+"Train"
     train_data = preprocessingTrain(train_path)
 
@@ -123,7 +144,7 @@ def preprocess(Targets):
     test_data = preprocessingVal(test_path)
 
     classes = val_data.class_indices
-
     Data = {'Train': train_data, 'Test': test_data, 'Val': val_data, 'classes': classes}
 
+    print('\nData Preprocessed...Stopping PreProc Pipeline...\n\n')
     return Data
