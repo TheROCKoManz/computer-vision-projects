@@ -48,3 +48,11 @@ Pipelines ---
 Training Logs saved in ---> 'Facial_Recognition/Training/Traininglogs'
 ------------------------------------------------------------------------------------------------------------------------
 
+After FTP Integration----
+    No data is stored locally at start
+    Downloads Target Videos first for training
+    Uploads trained Model to server storage
+    Removes all training Data from local storage
+
+    Downloads trained model from server and runs prediction
+

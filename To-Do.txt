@@ -1,13 +1,10 @@
-All--------------------------------------------------------------------------------------
----> Need to look for how to clear GPU Cache, and idle tasks before loading process on GPU
----> Also need to find how to clear GPU cache after complete running of task
-
 Facial Recognition-----------------------------------------------------------------------
 
-FTP Loading slow as Model-file is 500MB in size
-Need to keep cache model which would be replaced with newer model on demand
+    Create User Table in MySQL with user details and VideoFileID.
+    Create Record Table to map Model_ID with user_ID
 
-Add FTP to training pipeline too
+Later--
+    Add Gender feature to Authenticate User
 
 Facial Features--------------------------------------------------------------------------
 ---Need to find Feature extraction algorithms that can work on real-time.
@@ -26,7 +23,7 @@ OCR-----------------------------------------------------------------------------
 
 Crowd Analysis---------------------------------------------------------------------------
 ---Need Data
----Look for Algorithms in use
+---Look for Algorithms in use (YoloV5, YoloV8)
 ---Create Pipeline
 ---List out features to get from crowd analysis
 
