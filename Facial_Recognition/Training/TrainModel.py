@@ -8,8 +8,8 @@ from keras.callbacks import ModelCheckpoint
 import tensorflow as tf
 import datetime
 import pickle
-
 from Server_Loading.Upload_from_local import upload_files
+from Database_Connect.RecordLogs import Register_Model
 
 current_time = datetime.datetime.now()
 time_stamp = current_time.strftime("%d%m%y%H%M%S")
@@ -58,12 +58,25 @@ def train(Data):
     print(f'Training Accuracy: {training_accuracy}\nValidation Accuracy: {validation_accuracy}')
     print(f'Training Loss: {training_loss}\nValidation Loss: {validation_loss}\n')
     print(f' Trained model =====> FaceRecog{str(time_stamp)}.hdf5\n')
-    upload_files('Data/Trained_Model_Garden/')
 
     # Close the GPU session
     tf.compat.v1.keras.backend.get_session().close()
 
     save_training_performance(his_IncRes)
+
+    ModelID = 'FaceRecog'+str(time_stamp)
+    Targets = labels
+    timestamp = str(current_time)
+    accuracy = validation_accuracy
+    loss = validation_loss
+
+    Register_Model(modelID=ModelID,
+                   targets=Targets,
+                   timestamp=timestamp,
+                   accuracy=accuracy,
+                   loss=loss)
+
+    upload_files('Data/Trained_Model_Garden/')
 
 def save_training_performance(his):
     hIncRes = his.history

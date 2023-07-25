@@ -15,7 +15,7 @@ def upload_files(folder, delete=True):
             ftp.storbinary(f'STOR {folder+file}', f)
         if delete:
             os.remove(folder+file)
-
+    print('\nDirectory Uploaded!\n')
     ftp.quit()
 
 if __name__ == '__main__':
