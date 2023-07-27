@@ -11,6 +11,9 @@ import os
 import time
 import calendar
 
+from deepface import DeepFace
+
+
 current_GMT = time.gmtime()
 time_stamp = calendar.timegm(current_GMT)
 
@@ -63,8 +66,22 @@ def predictImagefile(imgpath, modelfile, labels):
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
             pred = predict(frame=img[y:y+h, x:x+w], model=model, classes=classes)
-            cv2.putText(img, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            # race = predictRace(img[y:y+h, x:x+w])
+            # gender = predictGender(img[y:y+h, x:x+w])
 
+            (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
+            # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
+            # (gender_width, gender_height), _ = cv2.getTextSize(gender, font, 0.75, 2)
+
+            # Draw the labels with the updated coordinates
+            cv2.putText(img, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            # cv2.putText(img, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            # cv2.putText(img, gender, (x - gender_width - 5, y + gender_height // 2), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+
+
+            # cv2.putText(img, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            # cv2.putText(img, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+            # cv2.putText(img, gender, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
     while True:
         cv2.imshow('Image', img)
 
@@ -125,9 +142,26 @@ def predictVideofile(vidpath, modelfile, labels):
             for x, y, w, h in faces:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
                 pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
+
+                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('gender',), enforce_detection=False)
+                gender = objs['gender']
+                # race = objs['race']
+
+                (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
+                # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
+                (gender_width, gender_height), _ = cv2.getTextSize(gender, font, 0.75, 2)
+
+                # Draw the labels with the updated coordinates
+                cv2.putText(frame, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                # cv2.putText(frame, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, gender, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+
+                # cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                # cv2.putText(frame, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                # cv2.putText(frame, gender, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+
                 print(pred)
                 detection.append(pred)
-                cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
         cv2.imshow('Webcam', frame)
         # result.write(frame)
