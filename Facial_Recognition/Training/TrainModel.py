@@ -80,10 +80,9 @@ def train(Data):
 
 def save_training_performance(his):
     hIncRes = his.history
-    plt.savefig('')
     fig = plt.figure(figsize=(17, 5))
     plt.axis("off")
-    plt.title("ACCURACY vs LOSS\n\n")
+    plt.title(f"ACCURACY vs LOSS -- Model_FaceRecog_{str(time_stamp)}\n\n")
     rows = 1
     columns = 2
     fig.add_subplot(rows, columns, 1)

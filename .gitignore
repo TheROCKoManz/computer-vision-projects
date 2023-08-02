@@ -65,3 +65,5 @@ Thumbs.db
 Facial_Recognition/.ipynb_checkpoints/
 /Data/Data_Load_to_sqlDB/UserDetails.xlsx
 /CrowdAnalysis/YoloV8_CrowdCount.ipynb
+
+/CrowdAnalysis/*

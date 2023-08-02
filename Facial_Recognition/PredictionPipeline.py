@@ -112,6 +112,7 @@ def predictVideofile(vidpath, modelfile, labels):
     tf.compat.v1.keras.backend.set_session(session)
 
     if not os.path.exists(modelfile):
+        print('Retrieving model from FTP Server...')
         model_stream = BytesIO()
         ftp.retrbinary('RETR ' + modelfile, model_stream.write)
         model_stream.seek(0)
@@ -143,18 +144,18 @@ def predictVideofile(vidpath, modelfile, labels):
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
                 pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
 
-                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('gender',), enforce_detection=False)
-                gender = objs['gender']
+                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('emotion',), enforce_detection=False)
+                emo = objs['dominant_emotion']
                 # race = objs['race']
 
                 (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
                 # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
-                (gender_width, gender_height), _ = cv2.getTextSize(gender, font, 0.75, 2)
+                (gender_width, gender_height), _ = cv2.getTextSize(emo, font, 0.75, 2)
 
                 # Draw the labels with the updated coordinates
                 cv2.putText(frame, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
                 # cv2.putText(frame, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, gender, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, emo, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
                 # cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
                 # cv2.putText(frame, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
@@ -245,11 +246,13 @@ def predictLive(modelfile, labels):
 
 if __name__ == '__main__':
     source = sys.argv[1]
+
     modelfile = 'Data/Trained_Model_Garden/' + sys.argv[2]
     if modelfile[-5:] != '.hdf5':
         modelfile = modelfile + '.hdf5'
 
     labels = modelfile[:-5] + '.pickle'
+
 
     if source == 'image':
         img_path = sys.argv[3]
