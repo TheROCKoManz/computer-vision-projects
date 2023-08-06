@@ -14,12 +14,14 @@ class LINE:
             self.click_count += 1
             cv2.circle(self.image, (x, y), 5, (0, 255, 255), -1)  # Yellow color (BGR)
 
-        cv2.imshow('Click Points', self.image)
+        cv2.imshow('Click Points Full', self.image)
+
 
     def returnPoints(self):
-        cv2.namedWindow('Click Points')
+        cv2.namedWindow('Click Points Full', cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty('Click Points Full', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-        cv2.setMouseCallback('Click Points', self.mouse_callback)
+        cv2.setMouseCallback('Click Points Full', self.mouse_callback)
 
         while self.click_count < 2:
             key = cv2.waitKey(10)

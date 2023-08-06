@@ -15,6 +15,7 @@ import supervision as sv
 import cv2
 from utils.LINE import LINE
 from utils.setup_files import pre_setup, Model
+from screeninfo import get_monitors
 #---------------------------------------------------------------------------------------
 #ByteTracker Tuning
 @dataclass(frozen=True)
@@ -70,6 +71,14 @@ def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
         ret, frame = cap.read()
         if not ret or frame is None:
             break
+        monitors = get_monitors()
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        if monitors:
+            screen = monitors[0]  # Assuming you want information about the primary monitor
+            width = screen.width
+            height = screen.height
+        frame = cv2.resize(frame, (width, height))
 
         results = model.predict(frame, imgsz=1280)[0]
         detections = sv.Detections.from_yolov8(results)
@@ -116,6 +125,25 @@ def vid_count(vid, byte_tracker, line_counter, box_annotator, line_annotator):
     generator = get_video_frames_generator(vid)
     # open target video file
     for frame in generator:
+        screen_width = get_monitors()[0].width
+        screen_height = get_monitors()[0].height
+
+        # Calculate aspect ratio
+        frame_width = frame.shape[1]
+        frame_height = frame.shape[0]
+        aspect_ratio = frame_width / frame_height
+
+        # Calculate new dimensions while maintaining aspect ratio
+        if screen_width / aspect_ratio <= screen_height:
+            new_width = screen_width
+            new_height = int(new_width / aspect_ratio)
+        else:
+            new_height = screen_height
+            new_width = int(new_height * aspect_ratio)
+
+        # Resize the frame
+        frame = cv2.resize(frame, (new_width, new_height))
+
         # model prediction on single frame and conversion to supervision Detections
         results = model.predict(frame, imgsz=1280)[0]
         detections = sv.Detections.from_yolov8(results)
@@ -151,32 +179,57 @@ def vid_count(vid, byte_tracker, line_counter, box_annotator, line_annotator):
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
-        cv2.imshow('Sample_Output', frame)
+        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow('Output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cv2.destroyAllWindows()
 
-def CountWalk(source:str, filepath:str=''):
+def CountWalk(source, filepath):
     src = filepath
     if source == 'camera':
         src = '/dev/video0'
 
+    print('source= ', source, '\n', 'file= ', src)
+
     vid = cv2.VideoCapture(src)
     ret, frame = vid.read()
+
+    screen_width = get_monitors()[0].width
+    screen_height = get_monitors()[0].height
+
+    # Calculate aspect ratio
+    frame_width = frame.shape[1]
+    frame_height = frame.shape[0]
+    aspect_ratio = float(frame_width / frame_height)
+
+    # Calculate new dimensions while maintaining aspect ratio
+    if screen_width / aspect_ratio <= screen_height:
+        new_width = screen_width
+        new_height = int(new_width / aspect_ratio)
+    else:
+        new_height = screen_height
+        new_width = int(new_height * aspect_ratio)
+
+    # Resize the frame
+    frame = cv2.resize(frame, (new_width, new_height))
+
     point1, point2 = LINE(frame).returnPoints()
     x1,y1 = point1
     x2,y2 = point2
     LINE_START = Point(x1,y1)
     LINE_END = Point(x2,y2)
 
+    print('VideoInfo: ',end='')
     if source == 'file':
         VideoInfo.from_video_path(src)
 
     byte_tracker = BYTETracker(BYTETrackerArgs())
     line_counter = LineZone(start=LINE_START, end=LINE_END)
     box_annotator = BoxAnnotator(thickness=2, text_thickness=2, text_scale=1, text_padding=1)
-    line_annotator = LineZoneAnnotator(thickness=3, text_thickness=2, text_scale=2, text_padding=1)
+    line_annotator = LineZoneAnnotator(thickness=3, text_thickness=1, text_scale=2, text_padding=1)
 
 
     if source == 'camera':
@@ -186,15 +239,14 @@ def CountWalk(source:str, filepath:str=''):
         vid_count(src, byte_tracker, line_counter, box_annotator, line_annotator)
 
 
-def main(source, filepath=''):
+def main(source, filepath):
     # basic startup setup
     pre_setup()
     ultralytics.checks()
     print("yolox.__version__:", yolox.__version__)
-
     CountWalk(source=source, filepath=filepath)
 
 if __name__ == '__main__':
-    source = sys.argv[0]
-    filepath = sys.argv[1] if source != 'file' else ''
-    main(source,filepath)
+    source = sys.argv[1]
+    filepath = sys.argv[2] if source == 'file' else ''
+    main(source=source,filepath=filepath)

@@ -21,17 +21,20 @@ def Model():
 
 # Usage
 def pre_setup():
-    repo_url = "https://github.com/ifzhang/ByteTrack.git"
-    destination_dir = ""
-
-    command = ["git", "clone", repo_url, destination_dir]
-    try:
-        subprocess.run(command, check=True)
-        print("ByteTrack cloned successful")
-    except subprocess.CalledProcessError:
-        print("ByteTrack cloned failed")
+    project_home = HOME + '/CrowdAnalysis/WalkInWalkOutCounter'
+    os.chdir(project_home)
+    if not os.path.exists(project_home+'/ByteTrack'):
+        repo_url = "https://github.com/ifzhang/ByteTrack.git"
+        command = ["git", "clone", repo_url]
+        try:
+            subprocess.run(command, check=True)
+            print("ByteTrack cloned successful")
+        except subprocess.CalledProcessError:
+            print("ByteTrack cloned failed")
+    else:
+        print("ByteTrack already present")
 
     os.chdir(HOME+'/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack/')
     sys.path.append(f"{HOME}/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack")
     run_setup_develop()
-    os.chdir(HOME + '/CrowdAnalysis/WalkInWalkOutCounter/')
+    os.chdir(project_home)
