@@ -14,7 +14,7 @@ import numpy as np
 import supervision as sv
 import cv2
 from utils.LINE import LINE
-from utils.setup_files import pre_setup, Model
+from utils.setup_files import Model
 from screeninfo import get_monitors
 #---------------------------------------------------------------------------------------
 #ByteTracker Tuning
@@ -61,24 +61,35 @@ def match_detections_with_tracks( detections: Detections, tracks: List[STrack]) 
 
 def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
     model = Model()
-    print('\n\n\n'+cam)
     cap = cv2.VideoCapture(cam)
     # Check if the camera is opened
     if not cap.isOpened():
         cap = cv2.VideoCapture(cam)
 
+    print('camera opened')
     while True:
         ret, frame = cap.read()
         if not ret or frame is None:
             break
-        monitors = get_monitors()
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        if monitors:
-            screen = monitors[0]  # Assuming you want information about the primary monitor
-            width = screen.width
-            height = screen.height
-        frame = cv2.resize(frame, (width, height))
+
+        screen_width = get_monitors()[0].width
+        screen_height = get_monitors()[0].height
+
+        # Calculate aspect ratio
+        frame_width = frame.shape[1]
+        frame_height = frame.shape[0]
+        aspect_ratio = frame_width / frame_height
+
+        # Calculate new dimensions while maintaining aspect ratio
+        if screen_width / aspect_ratio <= screen_height:
+            new_width = screen_width
+            new_height = int(new_width / aspect_ratio)
+        else:
+            new_height = screen_height
+            new_width = int(new_height * aspect_ratio)
+
+        # Resize the frame
+        frame = cv2.resize(frame, (new_width, new_height))
 
         results = model.predict(frame, imgsz=1280)[0]
         detections = sv.Detections.from_yolov8(results)
@@ -114,7 +125,10 @@ def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
-        cv2.imshow('Sample_Output', frame)
+        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow('Output', frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cap.release()
@@ -222,9 +236,12 @@ def CountWalk(source, filepath):
     LINE_START = Point(x1,y1)
     LINE_END = Point(x2,y2)
 
+    vid.release()
     print('VideoInfo: ',end='')
     if source == 'file':
         VideoInfo.from_video_path(src)
+    else:
+        print(src, ' ', new_height, new_width)
 
     byte_tracker = BYTETracker(BYTETrackerArgs())
     line_counter = LineZone(start=LINE_START, end=LINE_END)
@@ -241,7 +258,6 @@ def CountWalk(source, filepath):
 
 def main(source, filepath):
     # basic startup setup
-    pre_setup()
     ultralytics.checks()
     print("yolox.__version__:", yolox.__version__)
     CountWalk(source=source, filepath=filepath)
