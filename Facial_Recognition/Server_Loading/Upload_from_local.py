@@ -6,7 +6,7 @@ username = 'computervision'
 password = 'Computervision@253#87'
 working_dir = '/ComputerVision/'
 
-def upload_files(folder, delete=True):
+def upload_files(folder, delete=False):
     ftp = FTP(host=server_ip, user=username, passwd=password)
     ftp.cwd(working_dir)
     for file in [file for file in os.listdir(folder) if file not in ['.gitkeep', '.gitignore']]:
