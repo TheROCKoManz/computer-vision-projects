@@ -58,10 +58,12 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-
+*pt
 
 /Facial_Recognition/Training/Traininglogs/*
 /Facial_Recognition/Testing_FaceRecog.ipynb
 Facial_Recognition/.ipynb_checkpoints/
 /Data/Data_Load_to_sqlDB/UserDetails.xlsx
-/CrowdAnalysis/YoloV8_CrowdCount.ipynb
+/CrowdAnalysis/yolov5/*
+/CrowdAnalysis/yolov5/setup.cfg
+/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack/
