@@ -9,6 +9,7 @@ mysql-connector-python==8.0.5
 pandas==2.0.1
 mysql-connector-python==8.0.5
 protobuf==3.19.6
+ultralytics
 
 numpy
 torch==2.0.1

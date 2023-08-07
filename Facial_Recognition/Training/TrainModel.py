@@ -41,7 +41,7 @@ def train(Data):
         mcIncRes= ModelCheckpoint(filepath="Data/Trained_Model_Garden/FaceRecog"+str(time_stamp)+".hdf5", monitor="val_accuracy", verbose=1, save_best_only= True)
         cbIncRes=[mcIncRes]
 
-        his_IncRes = model_IncRes.fit_generator(train_data, steps_per_epoch=10, epochs=epochs, validation_data=val_data,
+        his_IncRes = model_IncRes.fit(train_data, steps_per_epoch=10, epochs=epochs, validation_data=val_data,
                                             validation_steps=8, callbacks=cbIncRes)
 
     labels = Data['classes']
