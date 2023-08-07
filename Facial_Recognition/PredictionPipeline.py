@@ -144,8 +144,8 @@ def predictVideofile(vidpath, modelfile, labels):
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
                 pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
 
-                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('emotion',), enforce_detection=False)
-                emo = objs['dominant_emotion']
+                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('race',), enforce_detection=False)
+                emo = objs['dominant_race']
                 # race = objs['race']
 
                 (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
