@@ -32,6 +32,8 @@ onnx
 onnxruntime
 onnx-simplifier==0.3.5
 cython_bbox
-loguru lap thop
+loguru
+lap
+thop
 onemetric
 screeninfo

@@ -67,3 +67,5 @@ Facial_Recognition/.ipynb_checkpoints/
 /CrowdAnalysis/yolov5/*
 /CrowdAnalysis/yolov5/setup.cfg
 /CrowdAnalysis/WalkInWalkOutCounter/ByteTrack/
+CrowdAnalysis/ZonalPersonCounter/frame.jpg
+CrowdAnalysis/yolov5/

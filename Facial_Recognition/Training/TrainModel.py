@@ -19,7 +19,7 @@ def train(Data):
     print("\n\n\n")
     print("Model is being trained on the provided user Images...\n\n\n")
 
-    epochs = 10
+    epochs = 20
 
     train_data = Data['Train']
     val_data = Data['Val']
