@@ -11,20 +11,9 @@ from typing import List
 import numpy as np
 import supervision as sv
 import cv2
-from utils.Polygon_Zone import Polygon
+from utils.tools import Polygon, Model
 from screeninfo import get_monitors
 #---------------------------------------------------------------------------------------
-#ByteTracker Tuning
-@dataclass(frozen=True)
-class BYTETrackerArgs:
-    track_thresh: float = 0.25
-    track_buffer: int = 30
-    match_thresh: float = 0.8
-    aspect_ratio_thresh: float = 3.0
-    min_box_area: float = 1.0
-    mot20: bool = False
-
-# converts Detections into format that can be consumed by match_detections_with_tracks function
 def detections2boxes(detections: Detections) -> np.ndarray:
     return np.hstack((
         detections.xyxy,
@@ -56,8 +45,8 @@ def match_detections_with_tracks( detections: Detections, tracks: List[STrack]) 
 #-----------------------------------------------------------------------------------
 
 
-def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
-    model = 0
+def cam_count(cam, zones, zone_annotators, box_annotators):
+    model = Model()
     cap = cv2.VideoCapture(cam)
     # Check if the camera is opened
     if not cap.isOpened():
@@ -90,37 +79,14 @@ def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
 
         results = model.predict(frame, imgsz=1280)[0]
         detections = sv.Detections.from_yolov8(results)
+        detections = detections[detections.class_id == 0]
 
-        # filtering out detections with unwanted classes
-        # detections = detections[detections.class_id==0]
-
-        # tracking detections
-        tracks = byte_tracker.update(
-            output_results=detections2boxes(detections=detections),
-            img_info=frame.shape,
-            img_size=frame.shape
-        )
-        tracker_id = match_detections_with_tracks(detections=detections, tracks=tracks)
-
-        detections.tracker_id = np.array(tracker_id)
-
-        # filtering out detections without trackers
-        mask = np.array([tracker_id is not None for tracker_id in detections.tracker_id], dtype=bool)
-        detections.filter(mask=mask, inplace=True)
-
-        # format custom labels
-        labels = [
-            f"#{tracker_id} -- {confidence:0.2f}"
-            for _, confidence, class_id, tracker_id
-            in detections
-        ]
-
-        # updating line counter
-        line_counter.trigger(detections=detections)
-
-        # annotate and display frame
-        frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
-        line_annotator.annotate(frame=frame, line_counter=line_counter)
+        for zone, zone_annotator, box_annotator in zip(zones, zone_annotators, box_annotators):
+            mask = zone.trigger(detections=detections)
+            detections_filtered = detections[mask]
+            # labels = [f"{model.names[class_id]} {confidence:0.2f}" for _, confidence, class_id, _ in detections]
+            frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
+            frame = zone_annotator.annotate(scene=frame)
 
         cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -131,8 +97,8 @@ def cam_count(cam, byte_tracker, line_counter, box_annotator, line_annotator):
     cap.release()
     cv2.destroyAllWindows()
 
-def vid_count(vid, byte_tracker, line_counter, box_annotator, line_annotator):
-    model = 0
+def vid_count(vid, zones, zone_annotators, box_annotators):
+    model = Model()
     generator = get_video_frames_generator(vid)
     # open target video file
     for frame in generator:
@@ -162,33 +128,14 @@ def vid_count(vid, byte_tracker, line_counter, box_annotator, line_annotator):
         # filtering out detections with unwanted classes
         detections = detections[detections.class_id == 0]
 
-        # tracking detections
-        tracks = byte_tracker.update(
-            output_results=detections2boxes(detections=detections),
-            img_info=frame.shape,
-            img_size=frame.shape
-        )
-        tracker_id = match_detections_with_tracks(detections=detections, tracks=tracks)
+        for zone, zone_annotator, box_annotator in zip(zones, zone_annotators, box_annotators):
+            mask = zone.trigger(detections=detections)
+            detections_filtered = detections[mask]
+            # labels = [f"{model.names[class_id]} {confidence:0.2f}" for _, confidence, class_id, _ in detections]
+            frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
+            frame = zone_annotator.annotate(scene=frame)
 
-        detections.tracker_id = np.array(tracker_id)
 
-        # filtering out detections without trackers
-        mask = np.array([tracker_id is not None for tracker_id in detections.tracker_id], dtype=bool)
-        detections.filter(mask=mask, inplace=True)
-
-        # format custom labels
-        labels = [
-            f"#{tracker_id} -- {confidence:0.2f}"
-            for _, confidence, class_id, tracker_id
-            in detections
-        ]
-
-        # updating line counter
-        line_counter.trigger(detections=detections)
-
-        # annotate and display frame
-        frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
-        line_annotator.annotate(frame=frame, line_counter=line_counter)
 
         cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -224,32 +171,40 @@ def CountZone(source, filepath):
         new_height = screen_height
         new_width = int(new_height * aspect_ratio)
 
+    colors = sv.ColorPalette.default()
     # Resize the frame
     frame = cv2.resize(frame, (new_width, new_height))
     cv2.namedWindow('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Sample Frame press ESC to exit', frame)
 
-    key = cv2.waitKey(10)
-    if key == 27:  # Exit loop if the 'Esc' key is pressed
-        cv2.destroyAllWindows()
+    while True:
+        # Wait for a key event (0 delay means wait indefinitely)
+        key = cv2.waitKey(0) & 0xFF
+
+        # Check if the 'Esc' key is pressed
+        if key == 27:
+            break
+
+        # Close all OpenCV windows
+    cv2.destroyAllWindows()
 
     No_of_Zones = int(input('\n Enter number of Zones of Interest: '))
     polygons=[]
     for i in range(No_of_Zones):
-        zone= Polygon(frame).returnPoints()
+        zone= Polygon(frame=frame,colour=colors.by_idx(i)).returnPoints()
         zone = np.array(zone, np.int32)
         polygons.append(zone)
 
     zones = [sv.PolygonZone(polygon=polygon,frame_resolution_wh=(new_width, new_height))
              for polygon in polygons]
 
-    colors = sv.ColorPalette.default()
+
     zone_annotators = [sv.PolygonZoneAnnotator(zone=zone,
                                 color=colors.by_idx(index),
                                 thickness=2,
                                 text_thickness=1,
-                                text_scale=0.5,
+                                text_scale=2,
                                 text_padding=1)
                        for index, zone in enumerate(zones)]
 
@@ -263,26 +218,34 @@ def CountZone(source, filepath):
 
     print('VideoInfo: ',end='')
     if source == 'file':
-        VideoInfo.from_video_path(src)
+        videoinfo = VideoInfo.from_video_path(src)
+        print(src, ' ', videoinfo.height, videoinfo.width, '\n')
     else:
-        print(src, ' ', new_height, new_width)
+        print(src, ' ', new_height, new_width,'\n')
 
-    for zone, zone_annotator, box_annotator in zip(zones, zone_annotators, box_annotators):
-
-        # labels = [f"{model.names[class_id]} {confidence:0.2f}" for _, confidence, class_id, _ in detections]
-        frame = box_annotator.annotate(scene=frame, skip_label=True)
+    for zone_annotator in zone_annotators:
         frame = zone_annotator.annotate(scene=frame)
 
     cv2.namedWindow('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Sample Frame press ESC to exit', frame)
 
-    #
-    # if source == 'camera':
-    #     cam_count(src, byte_tracker, line_counter, box_annotator, line_annotator)
-    #
-    # elif source == 'file':
-    #     vid_count(src, byte_tracker, line_counter, box_annotator, line_annotator)
+    while True:
+        # Wait for a key event (0 delay means wait indefinitely)
+        key = cv2.waitKey(0) & 0xFF
+
+        # Check if the 'Esc' key is pressed
+        if key == 27:
+            break
+
+        # Close all OpenCV windows
+    cv2.destroyAllWindows()
+
+    if source == 'camera':
+        cam_count(src, zones, zone_annotators, box_annotators)
+
+    elif source == 'file':
+        vid_count(src, zones, zone_annotators, box_annotators)
 
 
 def main(source, filepath=''):
