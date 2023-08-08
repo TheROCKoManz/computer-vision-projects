@@ -20,8 +20,8 @@ class Polygon:
 
 
     def returnPoints(self):
-        cv2.namedWindow('Click Points Full', cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty('Click Points Full', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow('Click Points Full', cv2.WINDOW_FULLSCREEN)
+        # cv2.setWindowProperty('Click Points Full', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
         cv2.setMouseCallback('Click Points Full', self.mouse_callback)
 

@@ -53,8 +53,8 @@ def cam_count(cam, zones, zone_annotators, box_annotators):
             frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
             frame = zone_annotator.annotate(scene=frame)
 
-        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow('Output', cv2.WINDOW_FULLSCREEN)
+        # cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow('Output', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -101,8 +101,8 @@ def vid_count(vid, zones, zone_annotators, box_annotators):
             frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
             frame = zone_annotator.annotate(scene=frame)
 
-        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow('Output', cv2.WINDOW_FULLSCREEN)
+        # cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow('Output', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -139,8 +139,8 @@ def CountZone(source, filepath):
     colors = sv.ColorPalette.default()
     # Resize the frame
     frame = cv2.resize(frame, (new_width, new_height))
-    cv2.namedWindow('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.namedWindow('Sample Frame press ESC to exit', cv2.WINDOW_FULLSCREEN)
+    # cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Sample Frame press ESC to exit', frame)
 
     while True:
@@ -190,8 +190,8 @@ def CountZone(source, filepath):
     for zone_annotator in zone_annotators:
         frame = zone_annotator.annotate(scene=frame)
 
-    cv2.namedWindow('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.namedWindow('Sample Frame press ESC to exit', cv2.WINDOW_FULLSCREEN)
+    # cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Sample Frame press ESC to exit', frame)
 
     while True:
