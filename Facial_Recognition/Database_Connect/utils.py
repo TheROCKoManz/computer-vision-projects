@@ -11,7 +11,8 @@ def DB_Connect():
             host=host,
             user=user,
             password=password,
-            database=database
+            database=database,
+            ssl_disabled = True
         )
         if db_connection.is_connected():
             print("\nConnected to the MySQL database!\n")

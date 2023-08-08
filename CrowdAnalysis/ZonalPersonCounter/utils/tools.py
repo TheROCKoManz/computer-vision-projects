@@ -16,14 +16,14 @@ class Polygon:
             b = self.colour.b
             cv2.circle(self.image, (x, y), 5, (r,g,b), -1)  # Yellow color (BGR)
 
-        cv2.imshow('Click Points Full', self.image)
+        cv2.imshow('Click to create Zones...Press Esc when done', self.image)
 
 
     def returnPoints(self):
-        cv2.namedWindow('Click Points Full', cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow('Click to create Zones...Press Esc when done', cv2.WND_PROP_FULLSCREEN)
         # cv2.setWindowProperty('Click Points Full', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-        cv2.setMouseCallback('Click Points Full', self.mouse_callback)
+        cv2.setMouseCallback('Click to create Zones...Press Esc when done', self.mouse_callback)
 
         while self.click_count < 100:
             key = cv2.waitKey(10)

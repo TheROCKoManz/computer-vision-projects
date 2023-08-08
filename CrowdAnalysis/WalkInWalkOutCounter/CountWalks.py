@@ -227,6 +227,12 @@ def CountWalk(source, filepath):
         new_height = screen_height
         new_width = int(new_height * aspect_ratio)
 
+    print('VideoInfo: ', end='')
+    if source == 'file':
+        VideoInfo.from_video_path(src)
+    else:
+        print(src, ' ', new_height, new_width)
+
     # Resize the frame
     frame = cv2.resize(frame, (new_width, new_height))
 
@@ -237,16 +243,11 @@ def CountWalk(source, filepath):
     LINE_END = Point(x2,y2)
 
     vid.release()
-    print('VideoInfo: ',end='')
-    if source == 'file':
-        VideoInfo.from_video_path(src)
-    else:
-        print(src, ' ', new_height, new_width)
 
     byte_tracker = BYTETracker(BYTETrackerArgs())
     line_counter = LineZone(start=LINE_START, end=LINE_END)
-    box_annotator = BoxAnnotator(thickness=2, text_thickness=2, text_scale=1, text_padding=1)
-    line_annotator = LineZoneAnnotator(thickness=3, text_thickness=1, text_scale=2, text_padding=1)
+    box_annotator = BoxAnnotator(thickness=1, text_thickness=1, text_scale=0.6, text_padding=1)
+    line_annotator = LineZoneAnnotator(thickness=2, text_thickness=1, text_scale=1, text_padding=1)
 
 
     if source == 'camera':
