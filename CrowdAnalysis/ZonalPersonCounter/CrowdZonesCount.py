@@ -1,49 +1,14 @@
 import sys
 import ultralytics
-import yolox
-from yolox.tracker.byte_tracker import BYTETracker, STrack
-from onemetric.cv.utils.iou import box_iou_batch
-from dataclasses import dataclass
 from supervision import VideoInfo
 from supervision import get_video_frames_generator
-from supervision import Detections, BoxAnnotator
-from typing import List
 import numpy as np
 import supervision as sv
 import cv2
 from utils.tools import Polygon, Model
 from screeninfo import get_monitors
-#---------------------------------------------------------------------------------------
-def detections2boxes(detections: Detections) -> np.ndarray:
-    return np.hstack((
-        detections.xyxy,
-        detections.confidence[:, np.newaxis]
-    ))
-# converts List[STrack] into format that can be consumed by match_detections_with_tracks function
-def tracks2boxes(tracks: List[STrack]) -> np.ndarray:
-    return np.array([
-        track.tlbr
-        for track
-        in tracks
-    ], dtype=float)
 
-# matches our bounding boxes with predictions
-def match_detections_with_tracks( detections: Detections, tracks: List[STrack]) -> Detections:
-    if not np.any(detections.xyxy) or len(tracks) == 0:
-        return np.empty((0,))
-
-    tracks_boxes = tracks2boxes(tracks=tracks)
-    iou = box_iou_batch(tracks_boxes, detections.xyxy)
-    track2detection = np.argmax(iou, axis=1)
-
-    tracker_ids = [None] * len(detections)
-
-    for tracker_index, detection_index in enumerate(track2detection):
-        if iou[tracker_index, detection_index] != 0:
-            tracker_ids[detection_index] = tracks[tracker_index].track_id
-    return tracker_ids
-#-----------------------------------------------------------------------------------
-
+# ---------------------------------------------------------------------------------------
 
 def cam_count(cam, zones, zone_annotators, box_annotators):
     model = Model()
@@ -97,6 +62,7 @@ def cam_count(cam, zones, zone_annotators, box_annotators):
     cap.release()
     cv2.destroyAllWindows()
 
+
 def vid_count(vid, zones, zone_annotators, box_annotators):
     model = Model()
     generator = get_video_frames_generator(vid)
@@ -135,8 +101,6 @@ def vid_count(vid, zones, zone_annotators, box_annotators):
             frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
             frame = zone_annotator.annotate(scene=frame)
 
-
-
         cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty('Output', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow('Output', frame)
@@ -144,6 +108,7 @@ def vid_count(vid, zones, zone_annotators, box_annotators):
             break
 
     cv2.destroyAllWindows()
+
 
 def CountZone(source, filepath):
     src = filepath
@@ -190,22 +155,21 @@ def CountZone(source, filepath):
     cv2.destroyAllWindows()
 
     No_of_Zones = int(input('\n Enter number of Zones of Interest: '))
-    polygons=[]
+    polygons = []
     for i in range(No_of_Zones):
-        zone= Polygon(frame=frame,colour=colors.by_idx(i)).returnPoints()
+        zone = Polygon(frame=frame, colour=colors.by_idx(i)).returnPoints()
         zone = np.array(zone, np.int32)
         polygons.append(zone)
 
-    zones = [sv.PolygonZone(polygon=polygon,frame_resolution_wh=(new_width, new_height))
+    zones = [sv.PolygonZone(polygon=polygon, frame_resolution_wh=(new_width, new_height))
              for polygon in polygons]
 
-
     zone_annotators = [sv.PolygonZoneAnnotator(zone=zone,
-                                color=colors.by_idx(index),
-                                thickness=2,
-                                text_thickness=1,
-                                text_scale=2,
-                                text_padding=1)
+                                               color=colors.by_idx(index),
+                                               thickness=2,
+                                               text_thickness=1,
+                                               text_scale=2,
+                                               text_padding=1)
                        for index, zone in enumerate(zones)]
 
     box_annotators = [sv.BoxAnnotator(color=colors.by_idx(index),
@@ -216,12 +180,12 @@ def CountZone(source, filepath):
                       for index in range(len(polygons))]
     vid.release()
 
-    print('VideoInfo: ',end='')
+    print('VideoInfo: ', end='')
     if source == 'file':
         videoinfo = VideoInfo.from_video_path(src)
         print(src, ' ', videoinfo.height, videoinfo.width, '\n')
     else:
-        print(src, ' ', new_height, new_width,'\n')
+        print(src, ' ', new_height, new_width, '\n')
 
     for zone_annotator in zone_annotators:
         frame = zone_annotator.annotate(scene=frame)
@@ -251,10 +215,10 @@ def CountZone(source, filepath):
 def main(source, filepath=''):
     # basic startup setup
     ultralytics.checks()
-    print("yolox.__version__:", yolox.__version__)
     CountZone(source=source, filepath=filepath)
+
 
 if __name__ == '__main__':
     source = sys.argv[1]
     filepath = sys.argv[2] if source == 'file' else ''
-    main(source=source,filepath=filepath)
+    main(source=source, filepath=filepath)
