@@ -11,7 +11,6 @@ def upload_files(folder, delete=False):
     ftp.cwd(working_dir)
     for file in [file for file in os.listdir(folder) if file not in ['.gitkeep', '.gitignore']]:
         with open(folder+file, 'rb') as f:
-            # Use the STOR command to upload the file to the FTP server
             ftp.storbinary(f'STOR {folder+file}', f)
         if delete:
             os.remove(folder+file)

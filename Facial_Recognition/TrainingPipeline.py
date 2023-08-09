@@ -1,6 +1,6 @@
 import argparse
 import os
-import shutil\
+import shutil
 
 from DataPreproc import Preprocess, extractFrames
 from Server_Loading import Download_from_Server as DFS
@@ -21,13 +21,15 @@ def delete_localfiles():
     if os.path.exists(image_base_dir):
         shutil.rmtree(image_base_dir)
 
-def main(Targets):
+def train(Targets):
+    print('\n\nTraining_Mode_ON\n')
     delete_localfiles()
     DFS.download_videos(Targets)
     extractFrames.extractFrames(Targets)
     Data = Preprocess.preprocess(Targets)
-    TrainModel.train(Data)
+    Model_ID = TrainModel.train(Data)
     delete_localfiles()
+    return Model_ID
 
 
 if __name__ == '__main__':
@@ -37,4 +39,4 @@ if __name__ == '__main__':
 
     targets = args.targets.strip('[]').lower().split(', ')
 
-    main(targets)
+    train(targets)

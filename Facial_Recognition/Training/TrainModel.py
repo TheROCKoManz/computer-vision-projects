@@ -8,6 +8,8 @@ from keras.callbacks import ModelCheckpoint
 import tensorflow as tf
 import datetime
 import pickle
+import sys
+sys.path.append('Facial_Recognition')
 from Server_Loading.Upload_from_local import upload_files
 from Database_Connect.RecordLogs import Register_Model
 
@@ -19,7 +21,7 @@ def train(Data):
     print("\n\n\n")
     print("Model is being trained on the provided user Images...\n\n\n")
 
-    epochs = 20
+    epochs = 1
 
     train_data = Data['Train']
     val_data = Data['Val']
@@ -77,6 +79,7 @@ def train(Data):
                    loss=loss)
 
     upload_files('Data/Trained_Model_Garden/')
+    return ModelID
 
 def save_training_performance(his):
     hIncRes = his.history

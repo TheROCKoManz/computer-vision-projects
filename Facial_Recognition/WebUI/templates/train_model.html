@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Train a Model</title>
+</head>
+<body>
+    <h2>Train a Model</h2>
+    <form method="POST" action="{{ url_for('train_model') }}">
+        <label for="userIds">Enter User IDs (e.g., [10001, 10002, 10003]):</label>
+        <input type="text" id="userIds" name="userIds" required>
+        <button type="submit">Start Training</button>
+    </form>
+</body>
+</html>

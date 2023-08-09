@@ -6,7 +6,7 @@ username = 'computervision'
 password = 'Computervision@253#87'
 working_dir = '/ComputerVision/Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo/'
 
-def upload_filex(file_path):
+def upload_filex(file_path, delete=False):
     try:
         # Establish FTP connection
         ftp = FTP(host=server_ip, user=username, passwd=password)
@@ -18,6 +18,9 @@ def upload_filex(file_path):
         # Upload the file
         with open(file_path, 'rb') as f:
             ftp.storbinary(f'STOR {file_name}', f)
+
+        if delete:
+            os.remove(file_path)
 
         print(f"File {file_name} uploaded successfully.")
 

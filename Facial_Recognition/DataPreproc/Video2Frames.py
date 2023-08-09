@@ -23,7 +23,7 @@ def Video2Frames(name, input_path, save_path, time_limit, skip_rate=1):
             # saving frames
             if counter % skip_rate == 0:
                 print(save_path + "/" + target_name + str(counter) + r".jpg")
-                cv.imwrite(save_path + "/" + target_name + str(counter) + r".jpg", frame)
+                cv.imwrite(save_path + "/" + target_name +'_'+ str(counter) + r".jpg", frame)
             counter += 1  # --->increment suffix counter
 
             # calculate elapsed time of video to limit time

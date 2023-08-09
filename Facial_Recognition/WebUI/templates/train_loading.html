@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model Training Progress</title>
+    <style>
+        /* Style for the loading bar container */
+        #loading-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* Style for the loading bar itself */
+        #loading-bar .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 10px;
+        }
+    </style>
+    <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/1.0.0/dist/progressbar.min.js"></script>
+</head>
+<body>
+    <h2>Model Training in Progress</h2>
+    <p>Please wait while the model is being trained...</p>
+    <div id="loading-bar">
+        <div class="progress-bar"></div>
+    </div>
+
+    <script>
+        var bar = new ProgressBar.Line('#loading-bar', { /* Loading bar configuration options */ });
+
+        // Start the loading bar animation
+        bar.animate(1.0);
+        var targets = "{{ targets }}"; // Targets are already a string, no need for tojson or safe
+        // After some time (simulating training completion), redirect to the model_training_progress page
+        setTimeout(function() {
+            window.location.href = "{{ url_for('model_training_progress') }}?targets=" + targets;
+        }, 5000); // Replace with the actual training duration in milliseconds
+    </script>
+</body>
+</html>

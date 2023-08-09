@@ -70,3 +70,6 @@ Facial_Recognition/.ipynb_checkpoints/
 CrowdAnalysis/ZonalPersonCounter/frame.jpg
 CrowdAnalysis/yolov5/
 /tmp*
+/localhost.crt
+/localhost.csr
+/localhost.key

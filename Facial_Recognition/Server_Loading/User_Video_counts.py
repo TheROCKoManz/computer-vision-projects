@@ -25,11 +25,3 @@ def count_user_videos(user_id):
         print("FTP error:", e)
         return -1  # Return a negative value to indicate an error
 
-# Example usage:
-user_id = 'BillGates' # Replace with the actual User_ID
-video_count = count_user_videos(user_id)
-
-if video_count >= 0:
-    print(f"User {user_id} has {video_count} videos.")
-else:
-    print("Error occurred while counting user videos.")
