@@ -8,7 +8,6 @@ sys.path.append('Facial_Recognition/')
 from Database_Connect.Load_Users import insert_user_info
 from Server_Loading.User_Video_counts import count_user_videos
 from Server_Loading.Upload_solo_file_to_Server import upload_filex
-
 from TrainingPipeline import train
 
 def generate_secret_key(length=32):
@@ -122,8 +121,8 @@ def model_training_progress():
     targets = [target.strip() for target in targets.strip('[]').split(',')]
     print(targets)
     # Call your training function with the extracted targets
-    # model_id = train(targets)
-    model_id = 'MODEL'
+    model_id = train(targets)
+    # model_id = 'MODEL' ##Debug
     # Redirect to the training_complete page and pass the generated model_id as a parameter
     return redirect(url_for('training_complete', model_id=model_id))
 
@@ -132,13 +131,10 @@ def training_complete():
     model_id = request.args.get('model_id',)
     return render_template('training_complete.html', model_id=model_id)
 
-@app.route('/test_mode')
-def test_mode():
-    return "Test Mode Page"
 
 @app.route('/restart', methods=['GET'])
 def restart():
     return redirect(url_for('main_page'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True, port=6900, ssl_context=('localhost.crt', 'localhost.key'))
+    app.run(host='0.0.0.0',debug=True, port=4200, ssl_context=('localhost.crt', 'localhost.key'))
