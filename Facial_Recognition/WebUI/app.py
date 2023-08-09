@@ -2,8 +2,11 @@ import os
 import cv2
 from flask import Flask, render_template, request, redirect, url_for, session
 import sys
+
 sys.path.append('Facial_Recognition/')
 from Database_Connect.Load_Users import insert_user_info
+from Server_Loading.User_Video_counts import count_user_videos
+from Server_Loading.Upload_solo_file_to_Server import upload_filex
 def generate_secret_key(length=32):
     return os.urandom(length).hex()
 
@@ -30,9 +33,6 @@ def record_mode():
         gender = request.form['Ethnicity']
         ethnicity = request.form['Gender']
 
-        session['FirstName'] = first_name
-        session['LastName'] = last_name
-
         user_info = {
             'FirstName': first_name,
             'LastName': last_name,
@@ -41,22 +41,34 @@ def record_mode():
             'Gender': ethnicity
         }
 
-        insert_user_info(user_info)
+        scenario,userID = insert_user_info(user_info)
 
-        return redirect(url_for('record_video_page'))
+        if scenario==1:
+            return redirect(url_for('user_exists_continue_to_record', userID = userID))
+
+        else:
+            return redirect(url_for('user_inserted_continue_to_record', userID = userID))
 
     return render_template('record_mode.html')
 
-@app.route('/record_video_page', methods=['GET', 'POST'])
-def record_video_page():
-    return render_template('record_video_page.html')
+@app.route('/user_inserted_continue_to_record', methods=['GET', 'POST'])
+def user_inserted_continue_to_record():
+    userID = request.args.get('userID', '')
+    return render_template('user_inserted_continue_to_record.html', userID = userID)
+
+@app.route('/user_exists_continue_to_record', methods=['GET', 'POST'])
+def user_exists_continue_to_record():
+    userID = request.args.get('userID', '')
+    return render_template('user_exists_continue_to_record.html', userID = userID)
+
 
 @app.route('/record_video', methods=['GET', 'POST'])
 def record_video():
-    first_name = session.get('FirstName', '')
-    last_name = session.get('LastName', '')
+    userID = request.args.get('userID', '')
+    video_count = count_user_videos(userID)
+    video_filename = f'{userID}_{str(video_count+1)}.mp4'
     if request.method == 'POST':
-        video_path = os.path.join(UPLOAD_FOLDER, f'{first_name}_{last_name}.mp4')
+        video_path = os.path.join(UPLOAD_FOLDER, video_filename)
         capture = cv2.VideoCapture(0)
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         frame_width = int(capture.get(3))
@@ -71,7 +83,7 @@ def record_video():
                 break
 
             out.write(frame)
-            cv2.imshow('Recording', frame)
+            cv2.imshow('Recording...Press Q to exit', frame)
 
             # Stop recording after 10 seconds
             if (cv2.getTickCount() - start_time) / cv2.getTickFrequency() > 10:
@@ -83,9 +95,12 @@ def record_video():
         capture.release()
         out.release()
         cv2.destroyAllWindows()
-
+        upload_filex(video_path)
         return "Video recorded successfully"
     return render_template('record_video.html')
+
+
+
 
 @app.route('/test_mode')
 def test_mode():
@@ -93,32 +108,4 @@ def test_mode():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
-        # # Capture video
-        # video_path = os.path.join(UPLOAD_FOLDER, f'{first_name}_{last_name}.mp4')
-        # capture = cv2.VideoCapture(0)
-        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        # out = cv2.VideoWriter(video_path, fourcc, 20.0, (640, 480))
-        #
-        # # Record for 10 seconds
-        # while capture.isOpened():
-        #     ret, frame = capture.read()
-        #     if not ret:
-        #         break
-        #
-        #     out.write(frame)
-        #     cv2.imshow('Recording', frame)
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         break
-        #
-        # capture.release()
-        # out.release()
-        # cv2.destroyAllWindows()
-        #
-        # return f'Recorded and `saved video as {video_path}<br><pre>{user_info}</pre>'`
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=4200)
