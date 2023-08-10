@@ -142,27 +142,31 @@ def predictVideofile(vidpath, modelfile, labels):
         if len(faces) > 0:
             for x, y, w, h in faces:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-                pred = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
+                pred, pred_acc = predict(frame=frame[y:y+h, x:x+w], model=model, classes=classes)
 
-                objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('race',), enforce_detection=False)
-                emo = objs['dominant_race']
+                # objs = DeepFace.analyze(img_path=frame[y:y+h, x:x+w], actions=('race',), enforce_detection=False)
+                # emo = objs['dominant_race']
                 # race = objs['race']
 
-                (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
-                # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
-                (gender_width, gender_height), _ = cv2.getTextSize(emo, font, 0.75, 2)
+                if pred_acc>=0.9:
+                    (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
+                    # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
+                    # (gender_width, gender_height), _ = cv2.getTextSize(emo, font, 0.75, 2)
+                    pred_acc_str = f'Acc: {pred_acc*100:.2f}%'
+                    (pred_acc_width, pred_acc_height), _ = cv2.getTextSize(pred_acc_str, font, 0.5, 1)
 
-                # Draw the labels with the updated coordinates
-                cv2.putText(frame, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                # cv2.putText(frame, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, emo, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # Draw the labels with the updated coordinates
+                    cv2.putText(frame, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, emo, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    cv2.putText(frame, pred_acc_str, (x + w - pred_acc_width, y - 20), font, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
 
-                # cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                # cv2.putText(frame, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                # cv2.putText(frame, gender, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, gender, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
-                print(pred)
-                detection.append(pred)
+                    print(pred)
+                    detection.append(pred)
 
         cv2.imshow('Webcam', frame)
         # result.write(frame)
@@ -225,20 +229,21 @@ def predictLive(modelfile, labels):
         if len(faces) > 0:
             for x, y, w, h in faces:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-                pred = predict(frame=frame[y:y + h, x:x + w], model=model, classes=classes)
+                pred, pred_acc = predict(frame=frame[y:y + h, x:x + w], model=model, classes=classes)
 
-                objs = DeepFace.analyze(img_path=frame[y:y + h, x:x + w], actions=('race',), enforce_detection=False)
-                emo = objs['dominant_race']
+                # objs = DeepFace.analyze(img_path=frame[y:y + h, x:x + w], actions=('race',), enforce_detection=False)
+                # emo = objs['dominant_race']
                 # race = objs['race']
 
                 (pred_width, pred_height), _ = cv2.getTextSize(pred, font, 0.75, 2)
                 # (race_width, race_height), _ = cv2.getTextSize(race, font, 0.75, 2)
-                (gender_width, gender_height), _ = cv2.getTextSize(emo, font, 0.75, 2)
+                # (gender_width, gender_height), _ = cv2.getTextSize(emo, font, 0.75, 2)
 
                 # Draw the labels with the updated coordinates
                 cv2.putText(frame, pred, (x + (w - pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, pred_acc, (x + (w + pred_width) // 2, y - 30), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
                 # cv2.putText(frame, race, (x + w - race_width, y + h + race_height + 5), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, emo, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
+                # cv2.putText(frame, emo, (x - gender_width - 5, y + h), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
 
                 # cv2.putText(frame, pred, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)
                 # cv2.putText(frame, race, (x, y - 10), font, 0.75, (255, 0, 0), 2, cv2.LINE_AA)

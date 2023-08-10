@@ -1,6 +1,6 @@
 import cv2 as cv
 import supervision as sv
-
+import os
 # USAGE----------------------------------------------------------------
 # VideoCapture(): INPUTS Params
 #           name ---------> frame-prefix
@@ -11,7 +11,7 @@ import supervision as sv
 
 def Video2Frames(name, input_path, save_path, time_limit, skip_rate=1):
     # ---> Frame-name suffix
-    counter = 100001
+    counter = len(os.listdir(save_path))+1
     target_name = name
     videoinfo = sv.VideoInfo.from_video_path(input_path)
     vid_resol = (videoinfo.width,videoinfo.height)

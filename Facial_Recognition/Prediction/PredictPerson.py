@@ -8,7 +8,11 @@ def predict(frame,model,classes):
     i = image.img_to_array(img)
     i = preprocess_input(i)
     input_arr = np.array([i])
-    pred = np.argmax(model.predict(input_arr))
-    pred = list(classes.keys())[pred]
+    pred = model.predict(input_arr)
+    predicted_class = np.argmax(pred, axis=1)[0]
+    prediction_accuracy = pred[0][predicted_class]
 
-    return pred
+    pred = np.argmax(pred)
+    pred_result = list(classes.keys())[pred]
+
+    return pred_result, prediction_accuracy
