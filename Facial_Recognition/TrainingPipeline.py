@@ -22,13 +22,14 @@ def delete_localfiles(delt = 'all'):
             work_dir = 'Data/Facial_Recog/Preproc_Data/'
         if delt == 'ModelData_dir':
             ModelData_dir = 'Data/Facial_Recog/ModelData/'
-
-    for dir in os.listdir(work_dir):
-        if dir not in ['.gitkeep', '.gitignore'] and os.path.exists(work_dir+dir):
-            shutil.rmtree(work_dir+dir)
-    for dir in os.listdir(ModelData_dir):
-        if dir not in ['.gitkeep', '.gitignore'] and os.path.exists(ModelData_dir+dir):
-            shutil.rmtree(ModelData_dir+dir)
+    if os.path.exists(work_dir):
+        for dir in os.listdir(work_dir):
+            if dir not in ['.gitkeep', '.gitignore'] and os.path.exists(work_dir+dir):
+                shutil.rmtree(work_dir+dir)
+    if os.path.exists(ModelData_dir):
+        for dir in os.listdir(ModelData_dir):
+            if dir not in ['.gitkeep', '.gitignore'] and os.path.exists(ModelData_dir+dir):
+                shutil.rmtree(ModelData_dir+dir)
     if os.path.exists(image_base_dir):
         shutil.rmtree(image_base_dir)
 
@@ -37,9 +38,7 @@ def train(Targets):
     delete_localfiles()
     DFS.download_videos(Targets)
     extractFrames.extractFrames(Targets)
-    delete_localfiles('image_base_dir')
     Data = Preprocess.preprocess(Targets)
-    delete_localfiles('work_dir')
     Model_ID = TrainModel.train(Data)
     delete_localfiles()
     return Model_ID

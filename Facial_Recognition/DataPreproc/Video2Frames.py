@@ -9,7 +9,7 @@ import os
 #           time_limit ---> limit time for clip
 #----------------------------------------------------------------------
 
-def Video2Frames(name, input_path, save_path, time_limit, skip_rate=1):
+def Video2Frames(name, input_path, save_path, time_limit, count_mask=0, skip_rate=1):
     # ---> Frame-name suffix
     counter = len(os.listdir(save_path))+1
     target_name = name
@@ -22,8 +22,8 @@ def Video2Frames(name, input_path, save_path, time_limit, skip_rate=1):
             frame = cv.resize(frame, vid_resol)
             # saving frames
             if counter % skip_rate == 0:
-                print(save_path + "/" + target_name + str(counter) + r".jpg")
-                cv.imwrite(save_path + "/" + target_name +'_'+ str(counter) + r".jpg", frame)
+                print(save_path + "/" + target_name + '_' +str(count_mask)+ '_'  + str(counter) + r".jpg")
+                cv.imwrite(save_path + "/" + target_name +'_'+str(count_mask)+ '_'  + str(counter) + r".jpg", frame)
             counter += 1  # --->increment suffix counter
 
             # calculate elapsed time of video to limit time

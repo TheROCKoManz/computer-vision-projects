@@ -13,6 +13,7 @@ def extractFrames(Targets):
     frames_destination_path = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetFrames/'
     if not os.path.exists(frames_destination_path):
         os.mkdir(frames_destination_path)
+    count = 1
     for file in os.listdir(raw_origin_path):
         if file not in ['.gitkeep', '.gitignore']:
             target, _ = os.path.splitext(file)  # Split filename and extension
@@ -22,8 +23,11 @@ def extractFrames(Targets):
                 if not os.path.exists(target_folder):
                     os.mkdir(target_folder)
                 V2F.Video2Frames(name=user_id,
-                                     input_path=raw_origin_path + target + '.mp4',
-                                     save_path=frames_destination_path + user_id,
-                                     time_limit=60)
+                                 input_path=raw_origin_path + target + '.mp4',
+                                 save_path=frames_destination_path + user_id,
+                                 count_mask=count,
+                                 time_limit=60,
+                                 skip_rate=10)
+                count+=1
 
     print("Frames Extracted\n")
