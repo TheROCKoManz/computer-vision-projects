@@ -1,14 +1,17 @@
 import os
+import cv2
 from flask import Flask, render_template, request, redirect, url_for, session
 import sys
 import base64
 from flask_sslify import SSLify
-
-sys.path.append('Facial_Recognition/')
-from Database_Connect.Load_Users import insert_user_info
+from flask_socketio import SocketIO, emit
+import numpy as np
+sys.path.append('Face_Recog/')
+from Database_Connect.Load_Users import insert_user_info, insert_user_encodings
+from DataPreproc.extractFaceEncodings import get_embedding_train
 from Server_Loading.User_Video_counts import count_user_videos
 from Server_Loading.Upload_solo_file_to_Server import upload_filex
-from TrainingPipeline import train
+from Prediction import fetch_encodings_from_db, Frame_Face_Recognition
 
 def generate_secret_key(length=32):
     return os.urandom(length).hex()
@@ -16,11 +19,13 @@ def generate_secret_key(length=32):
 
 app = Flask(__name__)
 app.secret_key = generate_secret_key()
-sslify = SSLify(app)
+# sslify = SSLify(app)
+socketio = SocketIO(app)
 # Folder to store recorded videos
 UPLOAD_FOLDER = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+user_ids, first_names, last_names, face_encodings = fetch_encodings_from_db()
 
 @app.route('/')
 def main_page():
@@ -62,14 +67,15 @@ def user_inserted_continue_to_record():
 @app.route('/user_exists_continue_to_record', methods=['GET', 'POST'])
 def user_exists_continue_to_record():
     userID = request.args.get('userID', '')
-    return render_template('user_exists_continue_to_record.html', userID = userID)
+    return render_template('user_exists_continue_to_record.html', userID=userID)
 
 
 @app.route('/record_video', methods=['GET', 'POST'])
 def record_video():
     userID = request.args.get('userID', '')
+    print('UserID for encoding: ', userID)
     video_count = count_user_videos(userID)
-    video_filename = f'{userID}_{str(video_count + 1)}.mp4'
+    video_filename = f'{userID}_{str(video_count + 1)}'
 
     if request.method == 'POST':
         video_data_base64 = request.form['videoData']
@@ -92,49 +98,64 @@ def record_video():
         command = f'ffmpeg -i {webm_path} {mp4_path}'
         os.system(command)
         upload_filex(mp4_path)
-
+        face_encoding = get_embedding_train([userID])
+        insert_user_encodings(userID, face_encoding)
         os.remove(webm_path)
         return "Video recorded and saved successfully"
 
     return render_template('record_video.html')
 
 
-@app.route('/train_model', methods=['GET', 'POST'])
-def train_model():
-    if request.method == 'POST':
-        user_ids = request.form.get('userIds')
-        # Split the user IDs string and convert it to a list
-        # Redirect to the model_training_progress page and pass the targets as parameters
-        return redirect(url_for('train_loading', targets=user_ids))
+def base64_to_image(base64_string):
+    # Extract the base64 encoded binary data from the input string
+    base64_data = base64_string.split(",")[1]
+    # Decode the base64 data to bytes
+    image_bytes = base64.b64decode(base64_data)
+    # Convert the bytes to numpy array
+    image_array = np.frombuffer(image_bytes, dtype=np.uint8)
+    # Decode the numpy array as an image using OpenCV
+    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    return image
 
-    return render_template('train_model.html')
+# Socket.IO event
+@socketio.on('connect')
+def connect():
+    print('Client connected')
 
-@app.route('/train_loading', methods=['GET'])
-def train_loading():
-    targets = request.args.get('targets')
-    return render_template('train_loading.html', targets=targets)
+@socketio.on('disconnect')
+def disconnect():
+    print('Client disconnected')
 
-@app.route('/model_training_progress', methods=['GET'])
-def model_training_progress():
-    targets = request.args.get('targets')  # Get the list of targets from the URL parameters
-    print(targets)
-    targets = [target.strip() for target in targets.strip('[]').split(',')]
-    print(targets)
-    # Call your training function with the extracted targets
-    model_id = train(targets)
-    # model_id = 'MODEL' ##Debug
-    # Redirect to the training_complete page and pass the generated model_id as a parameter
-    return redirect(url_for('training_complete', model_id=model_id))
 
-@app.route('/training_complete', methods=['GET'])
-def training_complete():
-    model_id = request.args.get('model_id',)
-    return render_template('training_complete.html', model_id=model_id)
+# Route for the prediction page
+@app.route('/predict')
+def predict():
+    return render_template('predict.html')
+
+
+# Socket.IO event for processing frames and sending processed frames back to the client
+@socketio.on('image')
+def handle_frame(image_data):
+    try:
+        # Decode the base64 image data
+        image = base64_to_image(image_data)
+        pred_frame = Frame_Face_Recognition(image, user_ids, first_names, last_names, face_encodings)
+        pred_frame = cv2.resize(pred_frame, (600,400))
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+        result, frame_encoded = cv2.imencode(".jpg", pred_frame, encode_param)
+        processed_img_data = base64.b64encode(frame_encoded).decode()
+        b64_src = "data:image/jpg;base64,"
+        processed_img_data = b64_src + processed_img_data
+        emit("processed_image", processed_img_data)
+    except Exception as e:
+        print("Error handling frame:", e)
 
 
 @app.route('/restart', methods=['GET'])
 def restart():
     return redirect(url_for('main_page'))
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True, port=4200, ssl_context=('localhost.crt', 'localhost.key'))
+    # app.run(host='0.0.0.0', debug=True, port=0, ssl_context=('localhost.crt', 'localhost.key'))
+    socketio.run(app, host='localhost', debug=True, port=4269)

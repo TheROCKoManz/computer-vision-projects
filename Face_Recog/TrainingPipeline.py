@@ -4,8 +4,7 @@ import shutil
 
 from DataPreproc import Preprocess, extractFrames
 from Server_Loading import Download_from_Server as DFS
-from Training import TrainModel
-
+# from Training import TrainModel
 
 def delete_localfiles(delt = 'all'):
     image_base_dir = '_'
@@ -40,7 +39,7 @@ def train(Targets):
     delete_localfiles('image_base_dir')
     Data = Preprocess.preprocess(Targets)
     delete_localfiles('work_dir')
-    Model_ID = TrainModel.train(Data)
+    # Model_ID = TrainModel.train(Data)
     delete_localfiles()
     return Model_ID
 

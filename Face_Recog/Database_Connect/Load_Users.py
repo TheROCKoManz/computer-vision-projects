@@ -1,6 +1,6 @@
 import mysql.connector
 import sys
-sys.path.append('Facial_Recognition/')
+sys.path.append('Face_Recog/')
 from Database_Connect.utils import DB_Connect, DB_Disconnect
 db_config = {
     'host':'176.9.99.185',
@@ -9,6 +9,24 @@ db_config = {
     'database':'user_db_computer_vision',
     'ssl_disabled': True
 }
+
+
+def insert_user_encodings(userID,face_encodings):
+    connection = DB_Connect()
+    cursor = connection.cursor()
+    try:
+        update_query = "UPDATE Users SET face_encodings = %s WHERE UserID = %s"
+        update_data = (face_encodings, userID)
+
+        cursor.execute(update_query, update_data)
+        connection.commit()
+        print(f"...Facial_Encoding_Recorded...")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    cursor.close()
+    DB_Disconnect(connection)
 
 def insert_user_info(user_info):
     connection = DB_Connect()

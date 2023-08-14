@@ -21,9 +21,9 @@ def extractFrames(Targets):
                 target_folder = os.path.join(frames_destination_path, user_id)
                 if not os.path.exists(target_folder):
                     os.mkdir(target_folder)
-                V2F.Video2Frames(name=user_id,
-                                     input_path=raw_origin_path + target + '.mp4',
-                                     save_path=frames_destination_path + user_id,
-                                     time_limit=60)
+                V2F.Video2FaceFrames(name=user_id,
+                                 input_path=raw_origin_path + target + '.mp4',
+                                 save_path=frames_destination_path + user_id,
+                                 time_limit=60)
 
     print("Frames Extracted\n")

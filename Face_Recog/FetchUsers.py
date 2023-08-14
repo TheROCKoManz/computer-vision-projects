@@ -12,7 +12,7 @@ def Fetch_Users():
             select * from Users;
         """
         cursor.execute(fetch_query)
-        results = pd.DataFrame(cursor.fetchall(), columns=['User_ID', 'FirstName', 'LastName', 'Age', 'Ethnicity', 'Gender', 'VideoID'])
+        results = pd.DataFrame(cursor.fetchall(), columns=['User_ID', 'FirstName', 'LastName', 'Age', 'Ethnicity', 'Gender', 'Face_encoding'])
         print(results)
 
     except mysql.connector.Error as err:

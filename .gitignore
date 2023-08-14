@@ -73,3 +73,9 @@ CrowdAnalysis/yolov5/
 /localhost.crt
 /localhost.csr
 /localhost.key
+/Facial_Recognition/Test_Web_Prediction/
+/Facial_Recognition/Test_Web_Prediction/*
+/Facial_Recognition/WebUI/localhost.crt
+/Facial_Recognition/WebUI/localhost.csr
+/Facial_Recognition/WebUI/localhost.key
+/Face_Recog/Test.ipynb

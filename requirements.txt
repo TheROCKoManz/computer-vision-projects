@@ -1,22 +1,22 @@
-tensorflow-gpu==2.10.0
-tensorflow==2.10.0
-deepface==0.0.69
-matplotlib==3.7.2
-keras==2.10.0
-numpy==1.22.4
-opencv-python==4.8.0.74
-mysql-connector-python==8.0.5
-pandas==2.0.1
+tensorflow-gpu
+tensorflow
+deepface
+matplotlib
+keras
+numpy
+opencv-python
+mysql-connector-python
+pandas
 mysql-connector-python==8.0.5
 protobuf==3.19.6
 ultralytics
 
 numpy
-torch==2.0.1
+torch
 loguru
 scikit-image
 tqdm
-torchvision==0.15.2
+torchvision
 Pillow
 thop
 ninja
@@ -26,7 +26,7 @@ lap
 motmetrics
 filterpy
 h5py
-supervision==0.2.0
+supervision
 
 onnx
 onnxruntime
@@ -37,3 +37,10 @@ lap
 thop
 onemetric
 screeninfo
+
+flask
+yolox
+scipy
+setuptools
+scikit-learn
+face_recognition

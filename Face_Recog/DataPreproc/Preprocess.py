@@ -12,27 +12,6 @@ ModelData_dir = 'Data/Facial_Recog/ModelData/'
 
 no_of_images = {}
 
-
-def face_select(img):
-    img = cv.imread(img)
-    facedetect = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    faces = facedetect.detectMultiScale(img, 1.1, 5)
-    imgs = []
-
-    if len(faces) > 0:
-        for x, y, w, h in faces:
-            confidence_threshold = 0.7  # Desired minimum face detection confidence in percentage (e.g., 70%)
-            # Perform face detection and calculate the confidence
-            faces_detected = facedetect.detectMultiScale(img[y:y + h, x:x + w], 1.1, 5, minSize=(30, 30))
-            face_confidence = len(faces_detected)
-            if len(faces_detected) > confidence_threshold:
-                # Calculate the face detection confidence
-                confidence = (face_confidence) / len(faces_detected)
-                if confidence >= confidence_threshold:
-                    imgs.append(img[y:y + h, x:x + w])
-
-    return imgs
-
 def data_modelling(Targets):
     print('Modelling Raw Frames to Facial Images')
     Non_Targets = []
