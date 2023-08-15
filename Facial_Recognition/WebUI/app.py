@@ -6,7 +6,7 @@ import base64
 from flask_sslify import SSLify
 from flask_socketio import SocketIO, emit
 import numpy as np
-sys.path.append('Face_Recog/')
+sys.path.append('Facial_Recognition/')
 from Database_Connect.Load_Users import insert_user_info, insert_user_encodings
 from DataPreproc.extractFaceEncodings import get_embedding_train
 from Server_Loading.User_Video_counts import count_user_videos
@@ -101,7 +101,7 @@ def record_video():
         face_encoding = get_embedding_train([userID])
         insert_user_encodings(userID, face_encoding)
         os.remove(webm_path)
-        return "Video recorded and saved successfully"
+        return render_template('CompletedTraining.html')
 
     return render_template('record_video.html')
 
@@ -158,4 +158,4 @@ def restart():
 
 if __name__ == '__main__':
     # app.run(host='0.0.0.0', debug=True, port=0, ssl_context=('localhost.crt', 'localhost.key'))
-    socketio.run(app, host='localhost', debug=True, port=4269)
+    socketio.run(app, host='0.0.0.0', debug=True, port=4269)

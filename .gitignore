@@ -78,4 +78,5 @@ CrowdAnalysis/yolov5/
 /Facial_Recognition/WebUI/localhost.crt
 /Facial_Recognition/WebUI/localhost.csr
 /Facial_Recognition/WebUI/localhost.key
-/Face_Recog/Test.ipynb
+/Facial_Recognition/Test.ipynb
+/CrowdAnalysis/WebApp/

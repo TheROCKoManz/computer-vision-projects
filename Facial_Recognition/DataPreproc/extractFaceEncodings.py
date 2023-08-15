@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import sys
 sys.path.append('../')
-sys.path.append('Face_Recog')
+sys.path.append('Facial_Recognition')
 
 from DataPreproc import extractFrames
 from Server_Loading import Download_from_Server as DFS
