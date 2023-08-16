@@ -3,6 +3,7 @@ import cv2
 from flask import Flask, render_template, request, redirect, url_for, session
 import sys
 import base64
+import eventlet
 from flask_sslify import SSLify
 from flask_socketio import SocketIO, emit
 import numpy as np
@@ -157,5 +158,4 @@ def restart():
 
 
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0', debug=True, port=0, ssl_context=('localhost.crt', 'localhost.key'))
-    socketio.run(app, host='0.0.0.0', debug=True, port=4269)
+    socketio.run(app=app, host='0.0.0.0', port=4269, debug=True)
