@@ -24,8 +24,10 @@ def process_camera(cam, zones, zone_annotators, box_annotators):
         if not ret or frame is None:
             break
 
-        end = process_frame(frame, zones, zone_annotators, box_annotators, model)
-        if end:
+        frame = process_frame(frame, zones, zone_annotators, box_annotators, model)
+        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
+        cv2.imshow('Output', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cv2.destroyAllWindows()
 
@@ -35,8 +37,10 @@ def process_video(vid, zones, zone_annotators, box_annotators):
     generator = get_video_frames_generator(vid)
 
     for frame in generator:
-        end = process_frame(frame, zones, zone_annotators, box_annotators, model)
-        if end:
+        frame = process_frame(frame, zones, zone_annotators, box_annotators, model)
+        cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
+        cv2.imshow('Output', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cv2.destroyAllWindows()
 
@@ -70,14 +74,10 @@ def process_frame(frame, zones, zone_annotators, box_annotators, model):
         frame = box_annotator.annotate(scene=frame, detections=detections_filtered)
         frame = zone_annotator.annotate(scene=frame)
 
-    cv2.namedWindow('Output', cv2.WND_PROP_FULLSCREEN)
-    cv2.imshow('Output', frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        return True
+    return frame
 
 
-def setup_zones(src):
+def get_frame(src):
     vid = cv2.VideoCapture(src)
     ret, frame = vid.read()
 
@@ -97,13 +97,11 @@ def setup_zones(src):
         new_height = screen_height
         new_width = int(new_height * aspect_ratio)
 
-    colors = sv.ColorPalette.default()
     # Resize the frame
     frame = cv2.resize(frame, (new_width, new_height))
     cv2.namedWindow('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN)
     # cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Sample Frame press ESC to exit', frame)
-
     while True:
         # Wait for a key event (0 delay means wait indefinitely)
         key = cv2.waitKey(0) & 0xFF
@@ -113,9 +111,16 @@ def setup_zones(src):
             break
 
         # Close all OpenCV windows
-    cv2.destroyAllWindows()  # Provide your own frame
+    cv2.destroyAllWindows()
+
+    return frame, new_height, new_width
+
+
+def setup_zones(src):
+    frame, new_height, new_width = get_frame(src)
 
     colors = sv.ColorPalette.default()
+
     polygons = []
 
     No_of_Zones = int(input('\nEnter number of Zones of Interest: '))
@@ -151,22 +156,7 @@ def setup_zones(src):
     for zone_annotator in zone_annotators:
         frame = zone_annotator.annotate(scene=frame)
 
-    cv2.namedWindow('Selected Zones...press ESC to exit', cv2.WND_PROP_FULLSCREEN)
-    # cv2.setWindowProperty('Sample Frame press ESC to exit', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    cv2.imshow('Selected Zones...press ESC to exit', frame)
-
-    while True:
-        # Wait for a key event (0 delay means wait indefinitely)
-        key = cv2.waitKey(0) & 0xFF
-
-        # Check if the 'Esc' key is pressed
-        if key == 27:
-            break
-
-        # Close all OpenCV windows
-    cv2.destroyAllWindows()
-
-    return zones, zone_annotators, box_annotators
+    return frame, zones, zone_annotators, box_annotators
 
 
 def CountinZone(source, filepath=''):
@@ -175,7 +165,19 @@ def CountinZone(source, filepath=''):
 
     print('Source:', source, '\nFile:', src)
 
-    zones, zone_annotators, box_annotators = setup_zones(src)
+    frame, zones, zone_annotators, box_annotators = setup_zones(src)
+
+    cv2.namedWindow('Selected Zones...press ESC to exit', cv2.WND_PROP_FULLSCREEN)
+    cv2.imshow('Selected Zones...press ESC to exit', frame)
+
+    while True:
+        # Wait for a key event (0 delay means wait indefinitely)
+        key = cv2.waitKey(0) & 0xFF
+        # Check if the 'Esc' key is pressed
+        if key == 27:
+            break
+        # Close all OpenCV windows
+    cv2.destroyAllWindows()
 
     if source == 'camera':
         process_camera(src, zones, zone_annotators, box_annotators)
