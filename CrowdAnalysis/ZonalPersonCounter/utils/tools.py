@@ -15,7 +15,7 @@ class Polygon:
             g = self.colour.g
             b = self.colour.b
             cv2.circle(self.image, (x, y), 5, (r,g,b), -1)  # Yellow color (BGR)
-
+            print(x,y)
         cv2.imshow('Click to create Zones...Press Esc when done', self.image)
 
 

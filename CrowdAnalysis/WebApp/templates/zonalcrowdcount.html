@@ -1,54 +1,55 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Zonal Crowd Counting</title>
-</head>
-<body>
-    <h1>Zonal Crowd Counting</h1>
-    <form id="choice-form" method="POST" enctype="multipart/form-data">
-        <input type="radio" name="choice" value="camera"> Camera
-        <input type="radio" name="choice" value="file"> File
-        <br><br>
-        <div id="file-upload-section" style="display:none;">
-            <input type="file" name="file" accept=".mp4">
+    <head>
+        <title>Zonal Crowd Counting</title>
+    </head>
+    <body>
+        <h1>Zonal Crowd Counting</h1>
+        <form id="choice-form" method="POST" enctype="multipart/form-data">
+            <input type="radio" name="choice" value="camera"> Camera
+            <input type="radio" name="choice" value="file"> File
             <br><br>
-            New Filename: <input type="text" name="new_filename" placeholder="Enter new filename">
-            <button type="submit" id="upload-button">Upload</button>
-        </div>
-    </form>
+            <div id="file-upload-section" style="display:none;">
+                <input type="file" name="file" accept=".mp4">
+                <br><br>
+                New Filename: <input type="text" name="new_filename" placeholder="Enter new filename">
+                <button type="submit" id="upload-button">Upload</button>
+            </div>
+        </form>
 
-    <div id="result-section"></div>
-    <div id="loading-section" style="display: none;">Uploading and Processing...</div>
+        <div id="result-section"></div>
+        <div id="loading-section" style="display: none;">Uploading and Processing...</div>
 
-    <script>
-        const choiceForm = document.getElementById('choice-form');
-        const fileUploadSection = document.getElementById('file-upload-section');
-        const fileInput = document.getElementById('file-input');
-        const newFilenameInput = document.getElementById('new-filename');
-        const resultSection = document.getElementById('result-section');
-        const loadingSection = document.getElementById('loading-section');
+        <script>
+            const choiceForm = document.getElementById('choice-form');
+            const fileUploadSection = document.getElementById('file-upload-section');
+            const fileInput = document.getElementById('file-input');
+            const newFilenameInput = document.getElementById('new-filename');
+            const resultSection = document.getElementById('result-section');
+            const loadingSection = document.getElementById('loading-section');
 
-        choiceForm.addEventListener('change', function() {
-            const choice = document.querySelector('input[name="choice"]:checked').value;
-            if (choice === 'file') {
-                fileUploadSection.style.display = 'block';
-            } else {
-                fileUploadSection.style.display = 'none';
-            }
-        });
-
-        choiceForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(choiceForm);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData,
+            choiceForm.addEventListener('change', function() {
+                const choice = document.querySelector('input[name="choice"]:checked').value;
+                if (choice === 'file') {
+                    fileUploadSection.style.display = 'block';
+                } else {
+                    fileUploadSection.style.display = 'none';
+                }
             });
 
-            const data = await response.text();
-            resultSection.innerHTML = data;
-        });
-    </script>
+            choiceForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(choiceForm);
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.text();
+                // Redirect to the zones_input page with the processed image data as a query parameter
+                window.location.href = '/zones_input?img_data=' + encodeURIComponent(data);
+            });
+        </script>
 </body>
 </html>

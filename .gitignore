@@ -80,3 +80,8 @@ CrowdAnalysis/yolov5/
 /Facial_Recognition/WebUI/localhost.key
 /Facial_Recognition/Test.ipynb
 /CrowdAnalysis/ZonalPersonCounter/CrowdZonesCountBack.py
+/CrowdAnalysis/testapp/
+/CrowdAnalysis/WebApp/testApp.py
+/Data/Crowd_Count/ZoneCounter_Dynamic/
+/CrowdAnalysis/CrowdAnalysis_Client_Server/
+/CrowdAnalysis/WebApp_Streamlit/*

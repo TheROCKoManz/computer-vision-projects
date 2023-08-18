@@ -1,10 +1,8 @@
 import os
 import cv2
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for
 import sys
 import base64
-import eventlet
-from flask_sslify import SSLify
 from flask_socketio import SocketIO, emit
 import numpy as np
 sys.path.append('Facial_Recognition/')
@@ -20,12 +18,8 @@ def generate_secret_key(length=32):
 
 app = Flask(__name__)
 app.secret_key = generate_secret_key()
-# sslify = SSLify(app)
 socketio = SocketIO(app)
-# Folder to store recorded videos
 UPLOAD_FOLDER = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 user_ids, first_names, last_names, face_encodings = fetch_encodings_from_db()
 
 @app.route('/')
@@ -73,6 +67,8 @@ def user_exists_continue_to_record():
 
 @app.route('/record_video', methods=['GET', 'POST'])
 def record_video():
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
     userID = request.args.get('userID', '')
     print('UserID for encoding: ', userID)
     video_count = count_user_videos(userID)
@@ -99,11 +95,12 @@ def record_video():
         command = f'ffmpeg -i {webm_path} {mp4_path}'
         os.system(command)
         upload_filex(mp4_path)
+
+        user_ids, first_names, last_names, face_encodings = fetch_encodings_from_db()
+
         face_encoding = get_embedding_train([userID])
         insert_user_encodings(userID, face_encoding)
-        os.remove(webm_path)
         return render_template('CompletedTraining.html')
-
     return render_template('record_video.html')
 
 

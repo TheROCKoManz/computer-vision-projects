@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zones</title>
+</head>
+<body>
+    <h1>Zones Coordinates</h1>
+    <!-- <pre id="zone-coordinates"></pre> -->
+
+    <h2>Generated Frame</h2>
+    <img id="generated-frame" src="" alt="Generated Frame">
+
+    <script>
+        const generatedFrame = document.getElementById('generated-frame');
+
+        // Fetch and display the generated frame
+        fetch('/generate_zone_frame')
+            .then(response => response.text())
+            .then(imgData => {
+                generatedFrame.src = imgData;
+            })
+            .catch(error => {
+                console.error('Error fetching generated frame:', error);
+            });
+    </script>
+</body>
+</html>
