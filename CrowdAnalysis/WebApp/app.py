@@ -1,19 +1,31 @@
-#### Working on 0 Number of Zones
-### Will have to work on drawing Zones, and return polygons to python create_zones.
+#### TEST VISION........###
 
 import base64
-import json
+import shutil
+
 import numpy as np
 import cv2
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, Response
 import os
 from werkzeug.utils import secure_filename
-from flask_socketio import SocketIO, emit
-from CrowdZonesCount import get_frame, setup_zones
+from CrowdZonesCount import get_frame, setup_zones, process_frame, Model
 app = Flask(__name__)
-
+from supervision import get_video_frames_generator
 UPLOAD_FOLDER = 'Data/Crowd_Count/ZoneCounter_Dynamic/uploads'
 ALLOWED_EXTENSIONS = {'avi', 'mp4', 'mov', 'wmv', 'flv', 'mkv', 'webm', 'mpeg', '3gp', 'ts', 'gif'}
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
+
+class ZoneVision:
+    def __init__(self):
+        self.video_path = ''
+        self.all_zones = []
+        self.zone_annotators = []
+        self.box_annotators = []
+        self.model = Model()
+
+VisionObject = ZoneVision()
 
 
 def generate_secret_key(length=32):
@@ -22,7 +34,6 @@ def generate_secret_key(length=32):
 
 app.secret_key = generate_secret_key()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-socketio = SocketIO(app)
 
 
 def allowed_file(filename):
@@ -30,7 +41,7 @@ def allowed_file(filename):
 
 
 @app.route('/')
-def index():
+def main_page():
     return render_template('zonalcrowdcount.html')
 
 
@@ -57,7 +68,7 @@ def handle_upload():
             if original_file_path.split('.')[1] != 'mp4':
                 os.remove(original_file_path)
         # Store the temporary frame file path and other data in the session
-        session['video_path'] = converted_file_path
+        VisionObject.video_path = converted_file_path
         return redirect(url_for('zones_input'))
     return 'Invalid file'
 
@@ -68,7 +79,7 @@ def zones_input():
 
 @app.route('/image')
 def image():
-    video_path = session.get('video_path')
+    video_path = VisionObject.video_path
     frame, height, width = get_frame(video_path)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
     result, frame_encoded = cv2.imencode(".jpg", frame, encode_param)
@@ -96,7 +107,6 @@ def create_zones():
         polygon_coords = [(point['x'], point['y']) for point in polygon_data]
         np_polygon = np.array(polygon_coords, dtype=np.int32)
         polygons_np.append(np_polygon)
-
     return "Successfully created zones."
 
 @app.route('/generate_zone_frame')
@@ -106,11 +116,13 @@ def generate_zone_frame():
         # Handle the case where polygons are not defined
         return "No polygons defined"
 
-    video_path = session.get('video_path')
+    video_path = VisionObject.video_path
     frame, all_zones, zone_annotators, box_annotators = setup_zones(video_path, polygons_np)
-    # session['zones'] = zones
-    # session['zone_annotators'] = zone_annotators
-    # session['box_annotators'] = box_annotators
+
+
+    VisionObject.all_zones = all_zones
+    VisionObject.box_annotators = box_annotators
+    VisionObject.zone_annotators = zone_annotators
 
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
     result, frame_encoded = cv2.imencode(".jpg", frame, encode_param)
@@ -118,6 +130,7 @@ def generate_zone_frame():
     b64_src = "data:image/jpg;base64,"
     processed_zone_img_data = b64_src + processed_img_data
     return processed_zone_img_data
+
 
 def print_polygons(polygons):
     for i, zone in enumerate(polygons, start=1):
@@ -128,6 +141,42 @@ def print_polygons(polygons):
 @app.route('/zones')
 def zones():
     return render_template('zones_display.html')
+
+
+def stream_vision(generator, all_zones, zone_annotators, box_annotators, model):
+    for frame in generator:
+        frame = process_frame(frame, all_zones, zone_annotators, box_annotators, model)
+
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+        result, frame_encoded = cv2.imencode(".jpg", frame, encode_param)
+        frame = frame_encoded.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    cv2.destroyAllWindows()
+
+
+@app.route('/start_vision')
+def start_vision():
+    model = VisionObject.model
+    video_path = VisionObject.video_path
+    all_zones = VisionObject.all_zones
+    zone_annotators = VisionObject.zone_annotators
+    box_annotators = VisionObject.box_annotators
+    generator = get_video_frames_generator(video_path)
+    return Response(stream_vision(generator, all_zones, zone_annotators, box_annotators, model), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/crowdvision_zone')
+def crowdvision_zone_display():
+    return render_template('CrowdVision_Zone_Display.html')
+
+
+@app.route('/restart', methods=['GET'])
+def restart():
+    shutil.rmtree(UPLOAD_FOLDER)
+    return redirect(url_for('main_page'))
 
 
 if __name__ == '__main__':

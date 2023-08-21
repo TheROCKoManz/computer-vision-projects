@@ -26,7 +26,7 @@ if (navigator.mediaDevices.getUserMedia) {
     });
 }
 
-const FPS = 10;
+const FPS = 2;
 setInterval(() => {
   width = video.width;
   height = video.height;
