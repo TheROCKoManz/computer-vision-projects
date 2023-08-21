@@ -44,6 +44,10 @@ def allowed_file(filename):
 def main_page():
     return render_template('zonalcrowdcount.html')
 
+@app.route('/camera')
+def camera():
+    return "Scope for Camera Access"
+
 
 @app.route('/upload', methods=['POST'])
 def handle_upload():
