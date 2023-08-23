@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zonal Crowd Counting</title>
+    <title>Line Crowd Counting</title>
 </head>
 <body>
-    <h1>Zonal Crowd Counting</h1>
+    <h1>Line Crowd Counting</h1>
     <form id="choice-form" method="POST" enctype="multipart/form-data">
         <input type="radio" name="choice" value="camera"> Camera
         <input type="radio" name="choice" value="file"> File
@@ -49,8 +49,8 @@
             });
 
             const data = await response.text();
-            // Redirect to the zones_input page with the processed image data as a query parameter
-            window.location.href = '/zones_input?img_data=' + encodeURIComponent(data);
+            // Redirect to the lines_input page with the processed image data as a query parameter
+            window.location.href = '/lines_input?img_data=' + encodeURIComponent(data);
         });
 
         // Add an event listener to the Next button to route to the /camera page

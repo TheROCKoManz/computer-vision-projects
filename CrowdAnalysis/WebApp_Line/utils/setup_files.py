@@ -37,4 +37,4 @@ def pre_setup():
     os.chdir(HOME+'/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack/')
     sys.path.append(f"{HOME}/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack")
     run_setup_develop()
-    os.chdir(project_home)
+    os.chdir(HOME)
