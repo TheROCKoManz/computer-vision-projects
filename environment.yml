@@ -1,4 +1,4 @@
-name: base
+name: Vision
 channels:
   - defaults
 dependencies:
@@ -435,4 +435,4 @@ dependencies:
       - xlsxwriter==3.1.2
       - xmltodict==0.13.0
       - yarl==1.9.2
-prefix: /home/manz/miniconda3
+prefix: /root/miniconda3_Vision
