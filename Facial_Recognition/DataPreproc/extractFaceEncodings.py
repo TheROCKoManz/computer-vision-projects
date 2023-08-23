@@ -1,10 +1,12 @@
+import shutil
+
 import face_recognition
 from PIL import Image
 import numpy as np
 import cv2
 import sys
 sys.path.append('../')
-sys.path.append('Face_Recog')
+sys.path.append('Facial_Recognition')
 
 from DataPreproc import extractFrames
 from Server_Loading import Download_from_Server as DFS
@@ -55,18 +57,22 @@ def get_average_face_embedding_from_folder(folder_path):
 
 
 def encode_embedding_to_json(embedding):
+    if embedding is None:
+        return None
+
     serializable_embedding = embedding.tolist()
     encoded_json = json.dumps(serializable_embedding)
     return encoded_json
 
 
+
 def get_embedding_train(Targets):
     DFS.download_videos(Targets)
     extractFrames.extractFrames(Targets)
-
     target_dir = 'Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetFrames/'+ Targets[0]
     average_embedding = get_average_face_embedding_from_folder(target_dir)
     encoded_json = encode_embedding_to_json(average_embedding)
+    shutil.rmtree('Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo')
     return encoded_json
 
 

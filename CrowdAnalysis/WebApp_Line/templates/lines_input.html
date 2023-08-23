@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Creating Monitoring Lines</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        #image-container {
+            position: relative;
+            display: inline-block;
+        }
+        #processedImage {
+            max-width: 100%;
+            height: auto;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+        }
+        #create-lines-button {
+            font-size: 18px;
+            padding: 12px 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Creating Monitoring Lines</h1>
+    <p>Click on the image to mark points. When finished, click "Create Lines and View" to send the data to the server and view lines.</p>
+
+    <div id="image-container">
+        <img id="processedImage" src="" alt="Processed Image">
+    </div>
+    <p id="coordinates"></p>
+    <div>
+        <button id="create-lines-button" onclick="createLinesAndNavigate()">Create Lines and View</button>
+    </div>
+
+    <script>
+        var imgElement = document.getElementById("processedImage");
+        const coordinates = document.getElementById('coordinates');
+        const clickedCoordinates = [];
+        const dotElements = [];
+        const colors = ['red', 'green', 'blue', 'purple', 'orange', 'yellow', 'pink', 'cyan', 'magenta', 'brown', 'teal', 'navy', 'indigo', 'lime', 'maroon'];
+        const linePoints = []; // Initialize LinePoints list
+        let currentColorIndex = 0;
+
+        fetch('/image')
+            .then(response => response.text())
+            .then(imgData => {
+                imgElement.src = imgData;
+            })
+            .catch(error => {
+                console.error('Error fetching image:', error);
+            });
+
+        imgElement.addEventListener('click', (event) => {
+            const imgRect = imgElement.getBoundingClientRect();
+            const naturalWidth = imgElement.naturalWidth;
+            const naturalHeight = imgElement.naturalHeight;
+            const scaleX = naturalWidth / imgRect.width;
+            const scaleY = naturalHeight / imgRect.height;
+            const x = Math.max(0, Math.round((event.clientX - imgRect.left) * scaleX));
+            const y = Math.max(0, Math.round((event.clientY - imgRect.top) * scaleY));
+
+            coordinates.innerHTML = `Clicked at x: ${x}, y: ${y}`;
+
+            const dot = createDot(x, y, colors[currentColorIndex]);
+            dotElements.push(dot);
+
+            clickedCoordinates.push({ x, y });
+
+            if (clickedCoordinates.length === 2) {
+                linePoints.push(clickedCoordinates.slice()); // Push clickedCoordinates to linePoints
+                clickedCoordinates.length = 0; // Clear clickedCoordinates
+                currentColorIndex = (currentColorIndex + 1) % colors.length; // Increment iterator and cycle colors
+            }
+
+            fetch('/get_coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `x=${x}&y=${y}`,
+            });
+        });
+
+        function createDot(x, y, color) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = `${x - 4}px`; // Adjust for dot size
+            dot.style.top = `${y - 4}px`; // Adjust for dot size
+            dot.style.backgroundColor = color;
+            imgElement.parentElement.appendChild(dot);
+            return dot;
+        }
+
+        function createLinesAndNavigate() {
+            if (clickedCoordinates.length > 0) {
+                linePoints.push(clickedCoordinates.slice()); // Push clickedCoordinates to linePoints
+                clickedCoordinates.length = 0; // Clear clickedCoordinates
+            }
+            if (linePoints.length > 0) {
+                sendLinePointsToServer();
+                window.location.href = '/lines'; // Navigate to lines display page
+            }
+        }
+
+        function sendLinePointsToServer() {
+            // Convert linePoints to JSON string and send to server
+            const jsonLinePoints = JSON.stringify(linePoints);
+            fetch('/create_lines', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonLinePoints,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Lines created:', data);
+            })
+            .catch(error => {
+                console.error('Error creating lines:', error);
+            });
+        }
+    </script>
+</body>
+</html>

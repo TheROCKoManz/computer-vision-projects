@@ -43,7 +43,7 @@ def Video2FaceFrames(name, input_path, save_path, time_limit):
             # saving frames
             if counter % skip_rate == 0:
                 for img in face_select(frame):
-                    print(save_path + "/" + target_name + str(counter) + r".jpg")
+                    print(save_path + "/" + target_name +'_'+ str(counter) + r".jpg")
                     cv.imwrite(save_path + "/" + target_name +'_'+ str(counter) + r".jpg", img)
             counter += 1  # --->increment suffix counter
 

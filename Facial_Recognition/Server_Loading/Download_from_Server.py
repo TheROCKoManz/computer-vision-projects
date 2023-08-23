@@ -30,6 +30,4 @@ def download_videos(targets):
     download_folder_content('Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo/', targets)
     print(f'Raw videos downloaded for training.')
 
-if __name__ == '__main__':
-    download_videos(['10019'])
 

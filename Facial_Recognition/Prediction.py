@@ -22,8 +22,9 @@ def fetch_encodings_from_db():
             user_ids.append(row[0])
             first_names.append(row[1])
             last_names.append(row[2])
-            face_encoding = np.fromstring(row[3].strip('[]'), sep=',')
-            face_encodings.append(face_encoding)
+            if row[3] is not None:
+                face_encoding = np.fromstring(row[3].strip('[]'), sep=',')
+                face_encodings.append(face_encoding)
         cursor.close()
         DB_Disconnect(connection)
         return [user_ids, first_names, last_names, face_encodings]

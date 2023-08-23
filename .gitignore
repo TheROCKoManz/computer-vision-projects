@@ -78,4 +78,10 @@ CrowdAnalysis/yolov5/
 /Facial_Recognition/WebUI/localhost.crt
 /Facial_Recognition/WebUI/localhost.csr
 /Facial_Recognition/WebUI/localhost.key
-/Face_Recog/Test.ipynb
+/Facial_Recognition/Test.ipynb
+/CrowdAnalysis/ZonalPersonCounter/CrowdZonesCountBack.py
+/CrowdAnalysis/testapp/
+/Data/Crowd_Count/ZoneCounter_Dynamic/
+/CrowdAnalysis/CrowdAnalysis_Client_Server/
+
+/CrowdAnalysis/WebApp_Line/ByteTrack/
