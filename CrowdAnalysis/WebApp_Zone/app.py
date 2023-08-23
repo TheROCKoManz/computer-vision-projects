@@ -46,7 +46,12 @@ def main_page():
 
 @app.route('/camera')
 def camera():
-    return "Scope for Camera Access"
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        return "Scope for Camera Access"
+    cap.release()
+    VisionObject.video_path = 0
+    return redirect(url_for('zones_input'))
 
 
 @app.route('/upload', methods=['POST'])
@@ -180,6 +185,8 @@ def crowdvision_zone_display():
 @app.route('/restart', methods=['GET'])
 def restart():
     shutil.rmtree(UPLOAD_FOLDER)
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
     return redirect(url_for('main_page'))
 
 

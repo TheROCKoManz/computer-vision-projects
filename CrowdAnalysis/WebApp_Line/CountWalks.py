@@ -139,7 +139,7 @@ def match_detections_with_tracks( detections: Detections, tracks: List[STrack]) 
 def get_frame(src):
     vid = cv2.VideoCapture(src)
     ret, frame = vid.read()
-
+    vid.release()
     global screen_width, screen_height
 
     # Calculate aspect ratio

@@ -2,8 +2,8 @@
 import os
 HOME=os.getcwd()
 project_home = HOME + '/CrowdAnalysis/WebApp_Line'
-from utils import setup_files
-setup_files.pre_setup()
+# from utils import setup_files
+# setup_files.pre_setup()
 os.chdir(HOME)
 import base64
 import shutil
@@ -47,6 +47,17 @@ def main_page():
     if not os.path.exists(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
     return render_template('linecrowdcount.html')
+
+@app.route('/camera')
+def camera():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        return "Scope for Camera Access"
+    cap.release()
+    VisionObject.video_path = 0
+    return redirect(url_for('lines_input'))
+
+
 
 
 @app.route('/upload', methods=['POST'])
