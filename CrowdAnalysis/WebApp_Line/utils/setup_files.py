@@ -34,7 +34,7 @@ def pre_setup():
     else:
         print("ByteTrack already present")
 
-    os.chdir(HOME+'/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack/')
-    sys.path.append(f"{HOME}/CrowdAnalysis/WalkInWalkOutCounter/ByteTrack")
+    os.chdir(HOME+'/CrowdAnalysis/WebApp_Line/ByteTrack/')
+    sys.path.append(f"{HOME}/CrowdAnalysis/WebApp_Line/ByteTrack")
     run_setup_develop()
     os.chdir(HOME)

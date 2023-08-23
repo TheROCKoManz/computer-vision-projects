@@ -3,14 +3,13 @@ import ultralytics
 from supervision import get_video_frames_generator
 import numpy as np
 import supervision as sv
-from screeninfo import get_monitors
 #---------------------------------------------------------------------------------------
 
 import cv2
 from ultralytics import YOLO
 
-screen_width = get_monitors()[0].width
-screen_height = get_monitors()[0].height
+screen_width = 1280
+screen_height = 720
 
 class Polygon:
     def __init__(self, frame,colour):

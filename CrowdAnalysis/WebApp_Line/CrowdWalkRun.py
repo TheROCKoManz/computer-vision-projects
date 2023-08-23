@@ -7,7 +7,7 @@ def run(source, filepath):
     pre_setup()
 
     from CountWalks import main
-    main(source=source, filepath=filepath)
+    # main(source=source, filepath=filepath)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,6 @@ from typing import List
 import numpy as np
 import supervision as sv
 import cv2
-from screeninfo import get_monitors
 import os
 import subprocess
 from ultralytics import YOLO
@@ -20,8 +19,8 @@ from ultralytics import YOLO
 
 HOME=os.getcwd()
 
-screen_width = get_monitors()[0].width
-screen_height = get_monitors()[0].height
+screen_width = 1280
+screen_height = 720
 
 def run_setup_develop():
     try:
@@ -254,10 +253,6 @@ def cam_count(cam, byte_tracker, Lines, box_annotator, line_annotator):
         ret, frame = cap.read()
         if not ret or frame is None:
             break
-
-        screen_width = get_monitors()[0].width
-        screen_height = get_monitors()[0].height
-
         # Calculate aspect ratio
         frame_width = frame.shape[1]
         frame_height = frame.shape[0]
