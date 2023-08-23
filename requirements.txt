@@ -30,7 +30,7 @@ supervision
 onnx
 onnxruntime
 onnx-simplifier==0.3.5
-cython_bbox
+
 loguru
 lap
 thop
@@ -38,8 +38,8 @@ onemetric
 screeninfo
 
 flask
-yolox
 scipy
 setuptools
 scikit-learn
 face_recognition
+flask_socketio
