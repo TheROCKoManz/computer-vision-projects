@@ -15,6 +15,8 @@ from Prediction import fetch_encodings_from_db, Frame_Face_Recognition
 def generate_secret_key(length=32):
     return os.urandom(length).hex()
 
+# certificate = 'computervision.blueappleonline.com.cer'
+# key = 'computervision.blueappleonline.com.key'
 
 app = Flask(__name__)
 app.secret_key = generate_secret_key()
@@ -95,8 +97,6 @@ def record_video():
         command = f'ffmpeg -i {webm_path} {mp4_path}'
         os.system(command)
         upload_filex(mp4_path)
-
-        user_ids, first_names, last_names, face_encodings = fetch_encodings_from_db()
 
         face_encoding = get_embedding_train([userID])
         insert_user_encodings(userID, face_encoding)
