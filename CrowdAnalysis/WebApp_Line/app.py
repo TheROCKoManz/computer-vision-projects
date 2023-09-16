@@ -8,6 +8,8 @@ os.chdir(HOME)
 import base64
 import shutil
 import cv2
+import sys
+sys.path.append('CrowdAnalysis/WebApp_Line/')
 from flask import Flask, render_template, request, redirect, url_for, Response
 from werkzeug.utils import secure_filename
 from CountWalks import Model, get_frame, process_frame, setup_lines

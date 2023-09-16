@@ -15,8 +15,8 @@ from Prediction import fetch_encodings_from_db, Frame_Face_Recognition
 def generate_secret_key(length=32):
     return os.urandom(length).hex()
 
-# certificate = 'computervision.blueappleonline.com.cer'
-# key = 'computervision.blueappleonline.com.key'
+# certificate = 'SSL_Certs/<certificate-file>'
+# key = 'SSL_Certs/<key-file>'
 
 app = Flask(__name__)
 app.secret_key = generate_secret_key()

@@ -3,6 +3,8 @@
 import base64
 import shutil
 
+import sys
+sys.path.append('CrowdAnalysis/WebApp_Zone/')
 import numpy as np
 import cv2
 from flask import Flask, render_template, request, redirect, url_for, Response

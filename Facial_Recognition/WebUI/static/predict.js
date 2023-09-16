@@ -1,5 +1,7 @@
 var socket = io.connect(
-  window.location.protocol + "//" + document.domain + ":" + location.port
+  window.location.protocol + "//" + document.domain + ":" + location.port, {
+    secure: true // Add this option to use secure WebSocket (wss) for HTTPS
+  }
 );
 socket.on("connect", function () {
   console.log("Connected...!", socket.connected);

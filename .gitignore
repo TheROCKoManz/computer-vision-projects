@@ -83,5 +83,5 @@ CrowdAnalysis/yolov5/
 /CrowdAnalysis/testapp/
 /CrowdAnalysis/CrowdAnalysis_Client_Server/
 /CrowdAnalysis/WebApp_Line/ByteTrack/
-/computervision.blueappleonline.com.cer
-/computervision.blueappleonline.com.key
+/SSL_Certs/computervision.blueappleonline.com.cer
+/SSL_Certs/computervision.blueappleonline.com.key
