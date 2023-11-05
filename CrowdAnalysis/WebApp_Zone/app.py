@@ -17,7 +17,7 @@ UPLOAD_FOLDER = 'Data/Crowd_Count/ZoneCounter_Dynamic/uploads'
 ALLOWED_EXTENSIONS = {'avi', 'mp4', 'mov', 'wmv', 'flv', 'mkv', 'webm', 'mpeg', '3gp', 'ts', 'gif'}
 
 if not os.path.exists(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 class ZoneVision:
     def __init__(self):
