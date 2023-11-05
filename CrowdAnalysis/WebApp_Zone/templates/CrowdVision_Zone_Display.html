@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Streaming</title>
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 50%;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 18px;
+            padding: 12px 24px;
+            cursor: pointer;
+        }
+        .reset-button {
+            align-self: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Streaming</h1>
+
+    <div class="button-container">
+        <form action="{{ url_for('zones_input') }}" method="get">
+            <button class="reset-button" type="submit">Reset Zones</button>
+        </form>
+        <button id="restart-feed-button">Restart Feed</button>
+        <form action="{{ url_for('restart') }}" method="get">
+            <button type="submit">Restart</button>
+        </form>
+    </div>
+
+    <div>
+        <img id="live-stream" src="{{ url_for('start_vision') }}" alt="Live Stream"/>
+    </div>
+
+    <script>
+        const restartFeedButton = document.getElementById('restart-feed-button');
+
+        restartFeedButton.addEventListener('click', () => {
+            location.reload(); // Reload the current page
+        });
+    </script>
+</body>
+</html>

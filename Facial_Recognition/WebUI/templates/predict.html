@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Image Processing Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .frames-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .frame {
+            width: 600px; /* Set the frame width */
+            height: 400px; /* Set the frame height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #canvasCamera {
+            margin: 0; /* Remove the margin */
+        }
+
+        /* Style to remove the default margin and padding of h2 elements */
+        h2 {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Style the back button */
+        #restartButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        /* Adjust margin for the header */
+        h1 {
+            margin-top: 5px; /* Adjust the margin as needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Image Processing Prediction</h1>
+    <!-- Add the "Back" button at the top left -->
+    <button id="restartButton">Back</button>
+
+    <div class="frames-container">
+        <div class="frame">
+            <h2>Camera Feed</h2>
+            <video autoplay playsinline id="videoElement"></video>
+            <canvas id="canvasCamera" width="600" height="400"></canvas>
+        </div>
+        <div class="frame">
+            <h2>Recognized Feed</h2>
+            <img id="photo" width="600" height="400">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='predict.js') }}"></script>
+    <script>
+        // Add event listener for the restart button
+        document.getElementById("restartButton").addEventListener("click", function () {
+            window.location.href = "/restart";
+        });
+    </script>
+</body>
+</html>

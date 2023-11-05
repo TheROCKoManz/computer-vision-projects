@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zones</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        #zoneCanvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        .button-container {
+            position: absolute;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zones Coordinates</h1>
+
+        <h2>Generated Frame</h2>
+        <div class="image-container">
+            <img id="generated-frame" src="" alt="Generated Frame">
+            <div class="button-container">
+                <form action="{{ url_for('zones_input') }}" method="get">
+                    <button type="submit">Reset Zones</button>
+                </form>
+                <button id="start-vision-button">Start Process</button>
+            </div>
+        </div>
+
+        <canvas id="zoneCanvas" width="1280" height="720"></canvas>
+    </div>
+
+    <script>
+        const generatedFrame = document.getElementById('generated-frame');
+        const startVisionButton = document.getElementById('start-vision-button');
+
+        // Fetch and display the generated frame
+        fetch('/generate_zone_frame')
+            .then(response => response.text())
+            .then(imgData => {
+                generatedFrame.src = imgData;
+            })
+            .catch(error => {
+                console.error('Error fetching generated frame:', error);
+            });
+
+        // Add event listener to the Start Vision button
+        startVisionButton.addEventListener('click', () => {
+            // Open the crowdvision page immediately
+            window.location.href = '/crowdvision_zone'; // Redirect to the /crowdvision route
+        });
+    </script>
+</body>
+</html>

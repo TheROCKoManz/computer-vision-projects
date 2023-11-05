@@ -1,0 +1,15 @@
+#CROWD LINE GUNICORN CONFIG
+# gunicorn_config.txt
+
+# IP address and port to bind to
+bind = "0.0.0.0:6943
+"  # Bind to all available network interfaces on port 8000
+
+# Set the maximum request line size to 16KB
+limit_request_line = 16384  # 16KB
+
+# Set the maximum number of request headers (default value)
+limit_request_fields = 100
+
+# Set the maximum header field size to 32KB
+limit_request_field_size = 32768 

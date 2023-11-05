@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Creating Monitoring Zones</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        #image-container {
+            position: relative;
+            display: inline-block;
+        }
+        #processedImage {
+            max-width: 100%;
+            height: auto;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+        }
+        #new-zone-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            padding: 12px 24px;
+        }
+        #create-zones-button {
+            font-size: 18px;
+            padding: 12px 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Creating Monitoring Zones</h1>
+    <p>Click on the image to mark points. Use the "New Zone" button to start a new zone. When finished, click "Create Zones and View" to send the data to the server and view zones.</p>
+
+    <div id="image-container">
+        <img id="processedImage" src="" alt="Processed Image">
+        <button id="new-zone-button">New Zone</button>
+    </div>
+    <p id="coordinates"></p>
+    <div>
+        <button id="create-zones-button" onclick="createZonesAndNavigate()">Create Zones and View</button>
+    </div>
+
+    <script>
+        var imgElement = document.getElementById("processedImage");
+        const coordinates = document.getElementById('coordinates');
+        const newZoneButton = document.getElementById('new-zone-button');
+        const clickedCoordinates = [];
+        const dotElements = [];
+        const colors = ['blue', 'red', 'cyan', 'pink', 'green', 'orange', 'purple', 'brown', 'lime', 'yellow'];
+        const polygons = []; // Initialize Polygons list
+        let currentColorIndex = 0;
+
+        fetch('/image')
+            .then(response => response.text())
+            .then(imgData => {
+                imgElement.src = imgData;
+            })
+            .catch(error => {
+                console.error('Error fetching image:', error);
+            });
+
+        imgElement.addEventListener('click', (event) => {
+            const imgRect = imgElement.getBoundingClientRect();
+            const naturalWidth = imgElement.naturalWidth;
+            const naturalHeight = imgElement.naturalHeight;
+            const scaleX = naturalWidth / imgRect.width;
+            const scaleY = naturalHeight / imgRect.height;
+            const x = Math.max(0, Math.round((event.clientX - imgRect.left) * scaleX));
+            const y = Math.max(0, Math.round((event.clientY - imgRect.top) * scaleY));
+
+            coordinates.innerHTML = `Clicked at x: ${x}, y: ${y}`;
+
+            const dot = createDot(x, y, colors[currentColorIndex]);
+            dotElements.push(dot);
+
+            clickedCoordinates.push({ x, y });
+
+            fetch('/get_coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `x=${x}&y=${y}`,
+            });
+        });
+
+        function createDot(x, y, color) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = `${x - 4}px`; // Adjust for dot size
+            dot.style.top = `${y - 4}px`; // Adjust for dot size
+            dot.style.backgroundColor = color;
+            imgElement.parentElement.appendChild(dot);
+            return dot;
+        }
+
+        newZoneButton.addEventListener('click', () => {
+            if (clickedCoordinates.length > 0) {
+                polygons.push(clickedCoordinates.slice()); // Push a copy of clickedCoordinates to polygons
+                clickedCoordinates.length = 0; // Clear clickedCoordinates
+            }
+            currentColorIndex = (currentColorIndex + 1) % colors.length; // Increment iterator and cycle colors
+        });
+
+        function createZonesAndNavigate() {
+            if (clickedCoordinates.length > 0) {
+                polygons.push(clickedCoordinates.slice()); // Push clickedCoordinates to polygons
+                clickedCoordinates.length = 0; // Clear clickedCoordinates
+            }
+            if (polygons.length > 0) {
+                sendPolygonsToServer();
+                window.location.href = '/zones'; // Navigate to zones display page
+            }
+        }
+
+        function sendPolygonsToServer() {
+            // Convert polygons to JSON string and send to server
+            const jsonPolygons = JSON.stringify(polygons);
+            fetch('/create_zones', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonPolygons,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Zones created:', data);
+            })
+            .catch(error => {
+                console.error('Error creating zones:', error);
+            });
+        }
+    </script>
+</body>
+</html>
