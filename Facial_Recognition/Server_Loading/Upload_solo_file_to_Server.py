@@ -1,9 +1,9 @@
 from ftplib import FTP, all_errors
 import os
 
-server_ip = '144.76.182.206'
+server_ip = 'x.x.x.x'
 username = 'computervision'
-password = 'Computervision@253#87'
+password = 'xxxxxxxx'
 working_dir = '/ComputerVision/Data/Facial_Recog/Raw_DataStore/FacialRecog_TargetVideo/'
 
 def upload_filex(file_path, delete=False):

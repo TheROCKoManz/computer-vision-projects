@@ -1,9 +1,9 @@
 from ftplib import FTP
 import os
 
-server_ip = '144.76.182.206'
+server_ip = 'x.x.x.x'
 username = 'computervision'
-password = 'Computervision@253#87'
+password = 'xxxxxxxx'
 working_dir = '/ComputerVision/'
 
 def upload_files(folder, delete=False):
