@@ -1,8 +1,8 @@
 import mysql.connector
 
-host = '176.9.99.185'
+host = 'x.x.x.x'
 user = 'computervision'
-password = 'Computervision@253#87'
+password = 'xxxxxxxx'
 database = 'user_db_computer_vision'
 
 def DB_Connect():
