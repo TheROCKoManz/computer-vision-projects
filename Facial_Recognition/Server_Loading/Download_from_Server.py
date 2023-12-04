@@ -1,9 +1,9 @@
 from ftplib import FTP
 import os
 
-server_ip = '144.76.182.206'
+server_ip = 'X.X.X.X'
 username = 'computervision'
-password = 'Computervision@253#87'
+password = 'XXXXXXXX'
 working_dir = '/ComputerVision/'
 
 def download_folder_content(folder, targets=[]):
