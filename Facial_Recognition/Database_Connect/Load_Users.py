@@ -3,9 +3,9 @@ import sys
 sys.path.append('Facial_Recognition/')
 from Database_Connect.utils import DB_Connect, DB_Disconnect
 db_config = {
-    'host':'176.9.99.185',
+    'host':'x.x.x.x',
     'user':'computervision',
-    'password':'Computervision@253#87',
+    'password':'xxxxxxxxx',
     'database':'user_db_computer_vision',
     'ssl_disabled': True
 }
