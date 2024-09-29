@@ -27,6 +27,8 @@
         const choiceForm = document.getElementById('choice-form');
         const fileUploadSection = document.getElementById('file-upload-section');
         const nextButton = document.getElementById('next-button'); // Get the Next button element
+        const baseUrl = window.location.pathname.split('/').slice(0, -1).join('/');
+
 
         choiceForm.addEventListener('change', function() {
             const choice = document.querySelector('input[name="choice"]:checked').value;
@@ -43,19 +45,19 @@
             event.preventDefault();
 
             const formData = new FormData(choiceForm);
-            const response = await fetch('/upload', {
+            const response = await fetch(baseUrl + '/upload', {
                 method: 'POST',
                 body: formData,
             });
 
             const data = await response.text();
             // Redirect to the zones_input page with the processed image data as a query parameter
-            window.location.href = '/zones_input?img_data=' + encodeURIComponent(data);
+            window.location.href = baseUrl + '/zones_input?img_data=' + encodeURIComponent(data);
         });
 
         // Add an event listener to the Next button to route to the /camera page
         nextButton.addEventListener('click', function() {
-            window.location.href = '/camera';
+            window.location.href = baseUrl + '/camera';
         });
     </script>
 </body>

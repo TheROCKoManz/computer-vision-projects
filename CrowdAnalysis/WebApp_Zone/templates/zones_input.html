@@ -55,6 +55,7 @@
         const colors = ['blue', 'red', 'cyan', 'pink', 'green', 'orange', 'purple', 'brown', 'lime', 'yellow'];
         const polygons = []; // Initialize Polygons list
         let currentColorIndex = 0;
+        const baseUrl = window.location.pathname.split('/').slice(0, -1).join('/');
 
         fetch('/image')
             .then(response => response.text())
@@ -81,7 +82,7 @@
 
             clickedCoordinates.push({ x, y });
 
-            fetch('/get_coordinates', {
+            fetch(baseUrl + '/get_coordinates', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -115,14 +116,14 @@
             }
             if (polygons.length > 0) {
                 sendPolygonsToServer();
-                window.location.href = '/zones'; // Navigate to zones display page
+                window.location.href = baseUrl + '/zones'; // Navigate to zones display page
             }
         }
 
         function sendPolygonsToServer() {
             // Convert polygons to JSON string and send to server
             const jsonPolygons = JSON.stringify(polygons);
-            fetch('/create_zones', {
+            fetch(baseUrl + '/create_zones', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
