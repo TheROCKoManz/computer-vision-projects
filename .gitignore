@@ -245,3 +245,10 @@ CrowdAnalysis/yolov5/
 /CrowdAnalysis/WebApp_Line/ByteTrack/
 /SSL_Certs/computervision.blueappleonline.com.cer
 /SSL_Certs/computervision.blueappleonline.com.key
+Scripts/activate
+pyvenv.cfg
+Scripts/activate.bat
+Scripts/Activate.ps1
+Scripts/deactivate.bat
+share/man/man1/isympy.1
+share/man/man1/ttx.1

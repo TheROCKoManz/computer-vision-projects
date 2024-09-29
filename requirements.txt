@@ -1,16 +1,12 @@
-tensorflow-gpu==2.10.0
-tensorflow==2.10.0
-deepface==0.0.69
+
 matplotlib==3.7.2
 keras==2.10.0
-numpy==1.22.4
 opencv-python==4.8.0.74
 pandas==2.0.1
 mysql-connector-python==8.0.5
 protobuf==3.19.6
 ultralytics
 
-numpy
 torch
 loguru
 scikit-image
@@ -20,11 +16,9 @@ Pillow
 thop
 ninja
 tabulate
-tensorboard==2.10
 lap
 motmetrics
 filterpy
-h5py
 supervision
 
 onnx
@@ -38,9 +32,13 @@ onemetric
 screeninfo
 
 flask
+fastapi
+gunicorn
+uvicorn
 scipy
 setuptools
 scikit-learn
 face_recognition
 flask_socketio
 eventlet
+numpy==1.22.4
