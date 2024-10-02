@@ -57,7 +57,7 @@
         let currentColorIndex = 0;
         const baseUrl = window.location.pathname.split('/').slice(0, -1).join('/');
 
-        fetch('/image')
+        fetch('/zone/image')
             .then(response => response.text())
             .then(imgData => {
                 imgElement.src = imgData;
