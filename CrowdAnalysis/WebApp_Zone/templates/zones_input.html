@@ -114,8 +114,10 @@
                 polygons.push(clickedCoordinates.slice()); // Push clickedCoordinates to polygons
                 clickedCoordinates.length = 0; // Clear clickedCoordinates
             }
+            console.log("DEBUG: creating Zones", polygons.length)
             if (polygons.length > 0) {
                 sendPolygonsToServer();
+                console.log(baseUrl + '/zones')
                 window.location.href = baseUrl + '/zones'; // Navigate to zones display page
             }
         }

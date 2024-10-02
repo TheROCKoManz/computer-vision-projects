@@ -43,7 +43,7 @@
         <div class="image-container">
             <img id="generated-frame" src="" alt="Generated Frame">
             <div class="button-container">
-                <form action="{{ url_for('zones_input') }}" method="get">
+                <form action="{{url_for('zone_bp.zones_input')}}" method="get">
                     <button type="submit">Reset Zones</button>
                 </form>
                 <button id="start-vision-button">Start Process</button>
@@ -54,6 +54,7 @@
     </div>
 
     <script>
+        console.log("DEBUG")
         const generatedFrame = document.getElementById('generated-frame');
         const startVisionButton = document.getElementById('start-vision-button');
         const baseUrl = window.location.pathname.split('/').slice(0, -1).join('/');

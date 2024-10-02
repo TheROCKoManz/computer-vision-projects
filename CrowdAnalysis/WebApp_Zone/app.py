@@ -123,7 +123,7 @@ def create_zones():
         polygon_coords = [(point['x'], point['y']) for point in polygon_data]
         np_polygon = np.array(polygon_coords, dtype=np.int32)
         polygons_np.append(np_polygon)
-    return "Successfully created zones."
+    return {"msg":"Successfully created zones."}
 
 @zone_bp.route('/generate_zone_frame')
 def generate_zone_frame():
@@ -154,6 +154,7 @@ def print_polygons(polygons):
 
 @zone_bp.route('/zones')
 def zones():
+    print("Here")
     return render_template('zones_display.html')
 
 def stream_vision(generator, all_zones, zone_annotators, box_annotators, model):
@@ -187,8 +188,8 @@ def crowdvision_zone_display():
 def restart():
     shutil.rmtree(UPLOAD_FOLDER)
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    print("DEBUG: ", url_for('zone_bp.zone_bp.main_page'))
-    return redirect(url_for('zone_bp.zone_bp.main_page'))
+    print("DEBUG: ", url_for('zone_bp.main_page'))
+    return redirect(url_for('zone_bp.main_page'))
 
 # Function to create the app
 def create_zone_blueprint():
